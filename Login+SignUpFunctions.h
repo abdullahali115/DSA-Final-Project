@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <fstream>
 #include "LinkedList.h"
+#include "User.h"
 using namespace std;
 
 class User;
@@ -122,69 +123,6 @@ bool isSame(string arr1, string arr2)
     return true;
 }
 
-class User
-{
-    int id;
-    string email;
-    string username;
-    string password;
-    string fullname;
-
-public:
-    User()
-    {
-        email = username = password = fullname = "";
-    }
-    User(int i, string e, string u, string p, string f)
-    {
-        id = i;
-        email = e;
-        username = u;
-        password = p;
-        fullname = f;
-    }
-    void setID(int i)
-    {
-        id = i;
-    }
-    void setEmail(string e)
-    {
-        email = e;
-    }
-    void setUsername(string u)
-    {
-        username = u;
-    }
-    void setFullname(string f)
-    {
-        fullname = f;
-    }
-    void setPassword(string p)
-    {
-        password = p;
-    }
-    int getID()
-    {
-        return id;
-    }
-    string getEmail()
-    {
-        return email;
-    }
-    string getUsername()
-    {
-        return username;
-    }
-    string getFullname()
-    {
-        return fullname;
-    }
-    string getPassword()
-    {
-        return password;
-    }
-};
-
 int readFromFile(string filename, DoublyLinkedList<User> &data)
 {
     fstream fin(filename, ios::in);
@@ -281,16 +219,41 @@ int signUp(DoublyLinkedList<User> &data)
     while (!isAlreadyExist("Username", data, username, 0))
         ;
     cout << "Enter password: ";
-    cin >> password;
+    cin.ignore();
+    getline(cin, password);
     while (!checkPass(password))
     {
         cout << "Password can't be less than 8 characters!\n";
         cout << "Enter password: ";
-        cin >> password;
+        getline(cin, password);
     }
     cout << "Enter Full Name: ";
-    cin >> fullname;
+    getline(cin, fullname);
     data.insertAtTail(User(data.size() + 1, email, username, password, fullname));
     writeToFile("loginDetails.txt", data.size(), email, username, password, fullname);
+
+    // greting
+
     return data.size();
+}
+
+void mainMenu(int id, DoublyLinkedList<User> data)
+{
+    system("chcp 65001");
+    system("CLS");
+    cout << "📜 Press 'F' to view the feed\n";
+    cout << "📥 Press 'I' to go to inbox\n";
+    cout << "🔍 Press 'S' to search any user\n";
+    cout << "✍️ Press 'C' to create a new post\n";
+    cout << "👤 Press 'P' to view your profile\n";
+    char choice = _getch();
+
+    if (choice == 'C' || choice == 'c')
+    {
+        string post{};
+        system("CLS");
+        cout << "What's on your mind today?: ";
+        getline(cin, post);
+        cout << post;
+    }
 }
