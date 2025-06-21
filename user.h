@@ -11,6 +11,7 @@ class User
 public:
     User()
     {
+        id = 0;
         email = username = password = fullname = "";
     }
     User(int i, string e, string u, string p, string f)
@@ -60,5 +61,29 @@ public:
     string getPassword()
     {
         return password;
+    }
+    bool operator<(const User &obj)
+    {
+        return this->username < obj.username;
+    }
+    bool operator>(const User &obj)
+    {
+        return this->username > obj.username;
+    }
+    bool operator==(const User &obj)
+    {
+        return this->username == obj.username;
+    }
+    bool operator<(const string obj)
+    {
+        return this->username < obj;
+    }
+    bool operator>(const string obj)
+    {
+        return this->username > obj;
+    }
+    bool operator==(const string obj)
+    {
+        return this->username == obj;
     }
 };

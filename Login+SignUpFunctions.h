@@ -1,8 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include "AVLTree.h"
 #include "LinkedList.h"
-#include "User.h"
+#include "posts.h"
 using namespace std;
 
 class User;
@@ -95,6 +96,12 @@ void writeToFile(string filename, int id, string arr, string arr2, string arr3, 
     }
 }
 
+void convertToLower(string &temp)
+{
+    for (int i = 0; temp[i] != '\0'; i++)
+        tolower(temp[i]);
+}
+
 void validate(string toBeChanged, string &arr)
 {
     while (!containsSpace(arr))
@@ -123,9 +130,15 @@ bool isSame(string arr1, string arr2)
     return true;
 }
 
-int readFromFile(string filename, DoublyLinkedList<User> &data)
+int readFromFile(string filename, AVL &data, AVL &emailAVL)
 {
     fstream fin(filename, ios::in);
+    if (!fin)
+    {
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
     int i = 0;
     int id{};
     string email{};
@@ -140,65 +153,107 @@ int readFromFile(string filename, DoublyLinkedList<User> &data)
             fin >> username;
             fin >> password;
             fin >> fullname;
-            data.insertAtHead(User(id, email, username, password, fullname));
+            data.insertIntoUserAVL(User(id, email, username, password, fullname));
+            emailAVL.insertIntoEmailAVL(User(id, email, username, password, fullname));
             i++;
         }
     }
     fin.close();
     return i;
 }
-
-int login(string email, string password, DoublyLinkedList<User> data)
+int readFromFile(string filename, DoublyLinkedList<Post> &postsLL)
 {
-    for (int i = 0; i < data.size(); i++)
+    fstream fin(filename, ios::in);
+    if (!fin)
     {
-        if (isSame(email, data[i].getEmail()) && isSame(password, data[i].getPassword()))
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
+    int i = 0;
+    string post{};
+    int userid{};
+    int postid{};
+    if (fin.is_open())
+    {
+        while (fin >> postid)
         {
-            return data[i].getID();
+            fin >> userid;
+            getline(fin, post);
+            postsLL.insertAtTail(Post(postid, userid, post));
+            i++;
         }
     }
-    return 0;
+    fin.close();
+    return i;
+}
+void writeToFile(string filename, int postid, int userid, string post)
+{
+    fstream fout(filename, ios::app);
+    if (!fout)
+    {
+        ofstream file(filename);
+        file.close();
+        fout.open(filename, ios::app);
+    }
+    if (fout.is_open())
+    {
+        fout << postid << " " << userid << " " << post << "\n";
+    }
 }
 
-bool isAlreadyExist(string toBeChanged, DoublyLinkedList<User> data, string &arr, int choice)
+int login(string email, string password, AVL &data)
+{
+    User temp = data.searchUserByEmail(email);
+    if (email == temp.getEmail() && password == temp.getPassword())
+        return temp.getID();
+    return 0;
+}
+int existCheckUserName(string username, AVL &data)
+{
+    User temp = data.searchByUser(username);
+    return temp.getID();
+}
+int existCheckEmail(string email, AVL &data)
+{
+    User temp = data.searchUserByEmail(email);
+    return temp.getID();
+}
+
+bool isAlreadyExist(string toBeChanged, AVL &data, AVL &emailAVL, string &arr, int choice)
 {
     bool cond = false;
-    int s = 0;
-    while (s < data.size())
+    if (choice == 0)
     {
-        if (choice == 0)
+        validate("Username", arr);
+        while (existCheckUserName(arr, data))
         {
-            validate("Username", arr);
-            while (isSame(data[s].getUsername(), arr))
-            {
-                cout << toBeChanged << " already in use" << endl;
-                cout << "Please enter another " << toBeChanged << ": ";
-                cin >> arr;
-            }
-            cond = true;
+            cout << toBeChanged << " already in use" << endl;
+            cout << "Please enter another " << toBeChanged << ": ";
+            cin >> arr;
         }
-        if (choice == 1)
+        cond = true;
+    }
+    if (choice == 1)
+    {
+        validate("Email", arr);
+        while (!isEmailValid(arr))
         {
-            validate("Email", arr);
-            while (!isEmailValid(arr))
-            {
-                cout << "Please enter another " << toBeChanged << ": ";
-                cin >> arr;
-            }
-            while (isSame(data[s].getEmail(), arr))
-            {
-                cout << toBeChanged << " already in use" << endl;
-                cout << "Please enter another " << toBeChanged << ": ";
-                cin >> arr;
-            }
-            cond = true;
+            cout << "Please enter another " << toBeChanged << ": ";
+            cin >> arr;
         }
-        s++;
+        while (existCheckEmail(arr, emailAVL))
+        {
+            cout << toBeChanged << " already in use" << endl;
+            cout << "Please enter another " << toBeChanged << ": ";
+            cin >> arr;
+        }
+        cond = true;
     }
     return cond;
 }
 
-int signUp(DoublyLinkedList<User> &data)
+int signUp(AVL &data, AVL &emailAVL)
 {
     string email{}, password{}, username{}, fullname{};
     int id{};
@@ -211,12 +266,12 @@ int signUp(DoublyLinkedList<User> &data)
         cin >> email;
         validate("Email", email);
     }
-    while (!isAlreadyExist("Email", data, email, 1))
+    while (!isAlreadyExist("Email", data, emailAVL, email, 1))
         ;
     cout << "Enter username: ";
     cin >> username;
     validate("Useername", username);
-    while (!isAlreadyExist("Username", data, username, 0))
+    while (!isAlreadyExist("Username", data, emailAVL, username, 0))
         ;
     cout << "Enter password: ";
     cin.ignore();
@@ -229,15 +284,21 @@ int signUp(DoublyLinkedList<User> &data)
     }
     cout << "Enter Full Name: ";
     getline(cin, fullname);
-    data.insertAtTail(User(data.size() + 1, email, username, password, fullname));
-    writeToFile("loginDetails.txt", data.size(), email, username, password, fullname);
+    int s = data.getMaxID();
+    cout << s << endl;
+    system("pause");
+    convertToLower(username);
+    convertToLower(email);
+    data.insertIntoUserAVL(User(s + 1, email, username, password, fullname));
+    data.insertIntoEmailAVL(User(s + 1, email, username, password, fullname));
+    writeToFile("Assets/loginDetails.txt", s + 1, email, username, password, fullname);
 
     // greting
 
-    return data.size();
+    return s + 1;
 }
 
-void mainMenu(int id, DoublyLinkedList<User> data)
+void mainMenu(int id, AVL &data, DoublyLinkedList<Post> &postsLL, int postSize)
 {
     system("chcp 65001");
     system("CLS");
@@ -253,7 +314,12 @@ void mainMenu(int id, DoublyLinkedList<User> data)
         string post{};
         system("CLS");
         cout << "What's on your mind today?: ";
-        getline(cin, post);
-        cout << post;
+        do
+        {
+            getline(cin, post);
+        } while (post.size() == 0);
+
+        postsLL.insertAtTail(Post(postSize + 1, id, post));
+        writeToFile("Assets/posts.txt", postSize + 1, id, post);
     }
 }

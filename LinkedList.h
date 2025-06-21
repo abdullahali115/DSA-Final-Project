@@ -2,13 +2,13 @@
 using namespace std;
 
 template <typename T>
-struct Node
+struct LLNode
 {
     T data;
-    Node *prev;
-    Node *next;
+    LLNode *prev;
+    LLNode *next;
 
-    Node(T d)
+    LLNode(T d)
     {
         data = d;
         prev = NULL;
@@ -20,8 +20,8 @@ template <typename T>
 class DoublyLinkedList
 {
 private:
-    Node<T> *head;
-    Node<T> *tail;
+    LLNode<T> *head;
+    LLNode<T> *tail;
 
 public:
     DoublyLinkedList()
@@ -32,33 +32,33 @@ public:
 
     void insertAtHead(T data)
     {
-        Node<T> *newNode = new Node<T>(data);
+        LLNode<T> *newLLNode = new LLNode<T>(data);
         if (head == NULL)
         {
-            head = newNode;
-            tail = newNode;
+            head = newLLNode;
+            tail = newLLNode;
         }
         else
         {
-            newNode->next = head;
-            head->prev = newNode;
-            head = newNode;
+            newLLNode->next = head;
+            head->prev = newLLNode;
+            head = newLLNode;
         }
     }
 
     void insertAtTail(T data)
     {
-        Node<T> *newNode = new Node<T>(data);
+        LLNode<T> *newLLNode = new LLNode<T>(data);
         if (tail == NULL)
         {
-            head = newNode;
-            tail = newNode;
+            head = newLLNode;
+            tail = newLLNode;
         }
         else
         {
-            newNode->prev = tail;
-            tail->next = newNode;
-            tail = newNode;
+            newLLNode->prev = tail;
+            tail->next = newLLNode;
+            tail = newLLNode;
         }
     }
 
@@ -69,7 +69,7 @@ public:
             cout << "List is empty!" << endl;
             return;
         }
-        Node<T> *temp = head;
+        LLNode<T> *temp = head;
         if (head == tail)
         {
             head = NULL;
@@ -90,7 +90,7 @@ public:
             cout << "List is empty!" << endl;
             return;
         }
-        Node<T> *temp = tail;
+        LLNode<T> *temp = tail;
         if (head == tail)
         {
             head = NULL;
@@ -117,7 +117,7 @@ public:
             return;
         }
 
-        Node<T> *temp = head;
+        LLNode<T> *temp = head;
         int count = 0;
 
         while (temp != NULL && count < index)
@@ -146,7 +146,7 @@ public:
 
     void displayForward()
     {
-        Node<T> *temp = head;
+        LLNode<T> *temp = head;
         while (temp != NULL)
         {
             cout << temp->data << " ";
@@ -157,7 +157,7 @@ public:
     int size()
     {
         int count{};
-        Node<T> *temp = head;
+        LLNode<T> *temp = head;
         while (temp != NULL)
         {
             temp = temp->next;
@@ -168,7 +168,7 @@ public:
     T operator[](int index)
     {
         int count = 0;
-        Node<T> *temp = head;
+        LLNode<T> *temp = head;
         while (temp != NULL)
         {
             if (index == count)
@@ -177,5 +177,11 @@ public:
         }
         T obj;
         return obj;
+    }
+    T getTail()
+    {
+        if(tail == nullptr)
+            return NULL;
+        return tail->data;
     }
 };

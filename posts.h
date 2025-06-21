@@ -8,7 +8,13 @@ class Post
     int userid;
 
 public:
-    Post(string p, int pid, int uid)
+    Post()
+    {
+        post = "";
+        postid = 0;
+        userid = 0;
+    }
+    Post(int pid, int uid, string p)
     {
         post = p;
         postid = pid;
@@ -30,11 +36,11 @@ public:
     {
         return post;
     }
-    int setpostid()
+    int getpostid()
     {
         return postid;
     }
-    int setuserid()
+    int getuserid()
     {
         return userid;
     }
