@@ -129,7 +129,8 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
     }
     else if (choice == 'R' || choice == 'r')
     {
-        for (int i = 0; i < requestPairs.size(); i++)
+        int i = 0;
+        for (i; i < requestPairs.size(); i++)
         {
             system("CLS");
             if (requestPairs[i].getP2() == currentUser.getID())
@@ -149,8 +150,25 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     cout << "🤝 You are now friends with " << sender.getFullname() << endl;
                     system("pause");
                 }
+                else if (ch == 'R' || ch == 'r')
+                {
+                    requestPairs.deleteAtIndex(i);
+                    updateLikePairs("Assets/requests.txt", requestPairs);
+                    i--;
+                    cout << "❌ Friend request from " << sender.getFullname() << " has been rejected successfully.\n";
+                    system("pause");
+                }
+                else if (ch == 'I' || ch == 'i')
+                {
+                    cout << "You ignored " << sender.getFullname() << "'s friend request. Maybe later! 😉\n";
+                    system("pause");
+                }
             }
         }
-        system("pause");
+        if (i == 0)
+        {
+            cout << "😊 You're all caught up! No new friend requests.\n";
+            system("pause");
+        }
     }
 }
