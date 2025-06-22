@@ -9,8 +9,6 @@
 
 using namespace std;
 
-class User;
-
 bool isValidChar(char ch)
 {
     return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9'));
@@ -375,6 +373,44 @@ void writeToFile(string filename, int postid, int userid, string post, int likes
         fout << postid << " " << userid << " " << likes << " " << comments << " " << post << "\n";
     }
 }
+#include <iostream>
+#include <conio.h> // For _getch()
+
+using namespace std;
+
+string getHiddenPassword()
+{
+    string password;
+    char ch;
+
+    while (true)
+    {
+        ch = _getch();
+        if (ch == 13)
+        {
+            cout << endl;
+            break;
+        }
+        else if (ch == 8)
+        {
+            if (!password.empty())
+            {
+                password.pop_back();
+                cout << "\b \b";
+            }
+        }
+        else if (ch == ' ')
+        {
+            continue;
+        }
+        else if (ch >= 33 && ch <= 126)
+        {
+            password += ch;
+            cout << '*';
+        }
+    }
+    return password;
+}
 
 User login(string email, string password, AVL &data)
 {
@@ -468,13 +504,12 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
     while (!isAlreadyExist("Username", data, emailAVL, username, 0))
         ;
     cout << "Enter password: ";
-    cin.ignore();
-    getline(cin, password);
+    password = getHiddenPassword();
     while (!checkPass(password))
     {
         cout << "Password can't be less than 8 characters!\n";
         cout << "Enter password: ";
-        getline(cin, password);
+        password = getHiddenPassword();
     }
     cout << "Enter Full Name: ";
     getline(cin, fullname);

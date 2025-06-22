@@ -16,11 +16,14 @@ char welcomePage()
     cout << setw(80) << "|                                                  |\n";
     cout << setw(80) << "|                                                  |\n";
     cout << setw(79) << " ==================================================\n";
-    cout << "👋 Ready to dive in?\nPress L to Log In or S to Sign Up and join our amazing community ! 🌟\n";
+    cout << "👋 Ready to dive in?\n";
+    cout << "🔐 Press 'L' to Log In\n";
+    cout << "📝 Press 'S' to Sign Up and join our amazing community! 🌟\n";
+    cout << "🚪 Press '0' to Exit\n";
     char choice{};
     do
     {
         choice = _getch();
-    } while (choice != 'L' && choice != 'l' && choice != 'S' && choice != 's');
+    } while (choice != 'L' && choice != 'l' && choice != 'S' && choice != 's' && choice != '0');
     return choice;
 }

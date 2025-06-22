@@ -40,8 +40,7 @@ back:
             cout << "Enter your email: ";
             cin >> email;
             cout << "Enter your password: ";
-            cin.ignore();
-            getline(cin, password);
+            password = getHiddenPassword();
             if (email == "0" && password == "0")
             {
                 break;
@@ -60,6 +59,8 @@ back:
         User currentUser = signUp(data, emailTree, idTree);
         mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, idTree);
     }
+    else if (ch == '0')
+        return 0;
     goto back;
     return 0;
 }
