@@ -102,7 +102,7 @@ void writeToFile(string filename, int id, string arr, string arr2, string arr3, 
 void convertToLower(string &temp)
 {
     for (int i = 0; temp[i] != '\0'; i++)
-        tolower(temp[i]);
+        temp[i] = tolower(temp[i]);
 }
 
 void validate(string toBeChanged, string &arr)
@@ -224,7 +224,7 @@ void writeToRequestFile(string filename, int sender, int receiver)
         fout << sender << " " << receiver << "\n";
     }
 }
-int readFromRequestFile(string filename, DoublyLinkedList<Pair>& requestPairs)
+int readFromRequestFile(string filename, DoublyLinkedList<Pair> &requestPairs)
 {
     fstream fin(filename, ios::in);
     if (!fin)
@@ -242,6 +242,30 @@ int readFromRequestFile(string filename, DoublyLinkedList<Pair>& requestPairs)
         {
             fin >> u2;
             requestPairs.insertAtTail(Pair(u1, u2));
+            i++;
+        }
+    }
+    fin.close();
+    return i;
+}
+int readFromFriendsFile(string filename, DoublyLinkedList<Pair> &friendPairs)
+{
+    fstream fin(filename, ios::in);
+    if (!fin)
+    {
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
+    int i = 0;
+    int u1;
+    int u2;
+    if (fin.is_open())
+    {
+        while (fin >> u1)
+        {
+            fin >> u2;
+            friendPairs.insertAtTail(Pair(u1, u2));
             i++;
         }
     }
@@ -295,7 +319,7 @@ int readFromFile(string filename, AVL &data, AVL &emailAVL)
             fin >> email;
             fin >> username;
             fin >> password;
-            fin >> fullname;
+            getline(fin, fullname);
             data.insertIntoUserAVL(User(id, email, username, password, fullname));
             emailAVL.insertIntoEmailAVL(User(id, email, username, password, fullname));
             i++;
@@ -368,22 +392,22 @@ int existCheckEmail(string email, AVL &data)
     return temp.getID();
 }
 
-bool requestAlreadySent(int sender, int receiver, DoublyLinkedList<Pair>& requests)
+bool requestAlreadySent(int sender, int receiver, DoublyLinkedList<Pair> &requests)
 {
     int s = requests.size();
-    for (int i = 0; i < s;i++)
+    for (int i = 0; i < s; i++)
     {
-        if(sender == requests[i].getP1() && receiver == requests[i].getP2())
+        if (sender == requests[i].getP1() && receiver == requests[i].getP2())
             return true;
     }
     return false;
 }
-bool requestAlreadyReceived(int sender, int receiver, DoublyLinkedList<Pair>& requests)
+bool requestAlreadyReceived(int sender, int receiver, DoublyLinkedList<Pair> &requests)
 {
     int s = requests.size();
-    for (int i = 0; i < s;i++)
+    for (int i = 0; i < s; i++)
     {
-        if(sender == requests[i].getP2() && receiver == requests[i].getP1())
+        if (sender == requests[i].getP2() && receiver == requests[i].getP1())
             return true;
     }
     return false;

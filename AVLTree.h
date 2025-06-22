@@ -2,6 +2,7 @@
 #include "user.h"
 using namespace std;
 
+
 class Node
 {
 public:
@@ -15,6 +16,11 @@ public:
     }
 };
 
+void ToLower(string &temp)
+{
+    for (int i = 0; temp[i] != '\0'; i++)
+        temp[i] = tolower(temp[i]);
+}
 class AVL
 {
     Node *root;
@@ -150,6 +156,26 @@ class AVL
         cout << temp->data.getID() << " ";
         inOrderHelper(temp->right);
     }
+    void inOrderSearchHelper(Node *temp, string str)
+    {
+        if (temp == nullptr)
+            return;
+        inOrderSearchHelper(temp->left, str);
+        string tempStr = temp->data.getFullname();
+        ToLower(tempStr);
+        ToLower(str);
+        if (tempStr.find(str) != string::npos)
+        {
+            cout << "UserID: " << temp->data.getID() << " Full Name: " << temp->data.getFullname() << " Username: " << temp->data.getUsername() << endl;
+        }
+        inOrderSearchHelper(temp->right, str);
+    }
+    int sizeHelper(Node* temp)
+    {
+        if(temp == nullptr)
+            return 0;
+        return 1 + sizeHelper(temp->left) + sizeHelper(temp->right);
+    }
 
 public:
     AVL() : root(nullptr)
@@ -178,5 +204,13 @@ public:
     void inOrderDisplay()
     {
         inOrderHelper(root);
+    }
+    void inOrderSearch(string str)
+    {
+        inOrderSearchHelper(root, str);
+    }
+    int size()
+    {
+        return sizeHelper(root);
     }
 };

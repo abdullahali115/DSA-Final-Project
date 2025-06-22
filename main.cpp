@@ -24,6 +24,7 @@ back:
     int pairSize = readFromLikePairFiles("Assets/likePairs.txt", likePairs);
     int commentSize = readFromCommentFiles("Assets/comments.txt", comments);
     int requests = readFromRequestFile("Assets/requests.txt", requestPairs);
+    int friends = readFromFriendsFile("Assets/friends.txt", friendPairs);
     string email{}, password{}, username{}, fullname{}, id{};
 
     if (ch == 'l' || ch == 'L')
@@ -50,13 +51,13 @@ back:
         } while (currentUser.getID() == 0);
 
         if (currentUser.getID() != 0)
-            mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs);
+            mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, data);
     }
     else if (ch == 'S' || ch == 's')
     {
         system("CLS");
         User currentUser = signUp(data, emailTree);
-        mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs);
+        mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, data);
     }
     goto back;
     return 0;
