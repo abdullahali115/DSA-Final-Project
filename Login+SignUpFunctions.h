@@ -297,7 +297,7 @@ int readFromLikePairFiles(string filename, DoublyLinkedList<Pair> &likePairs)
     return i;
 }
 
-int readFromFile(string filename, AVL &data, AVL &emailAVL)
+int readFromFile(string filename, AVL &data, AVL &emailAVL, AVL &idTree)
 {
     fstream fin(filename, ios::in);
     if (!fin)
@@ -319,9 +319,11 @@ int readFromFile(string filename, AVL &data, AVL &emailAVL)
             fin >> email;
             fin >> username;
             fin >> password;
+            fin.ignore();
             getline(fin, fullname);
             data.insertIntoUserAVL(User(id, email, username, password, fullname));
             emailAVL.insertIntoEmailAVL(User(id, email, username, password, fullname));
+            idTree.insertIntoEmailAVL(User(id, email, username, password, fullname));
             i++;
         }
     }
@@ -445,7 +447,7 @@ bool isAlreadyExist(string toBeChanged, AVL &data, AVL &emailAVL, string &arr, i
     return cond;
 }
 
-User signUp(AVL &data, AVL &emailAVL)
+User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
 {
     string email{}, password{}, username{}, fullname{};
     int id{};
@@ -477,12 +479,11 @@ User signUp(AVL &data, AVL &emailAVL)
     cout << "Enter Full Name: ";
     getline(cin, fullname);
     int s = data.getMaxID();
-    cout << s << endl;
-    system("pause");
     convertToLower(username);
     convertToLower(email);
     data.insertIntoUserAVL(User(s + 1, email, username, password, fullname));
-    data.insertIntoEmailAVL(User(s + 1, email, username, password, fullname));
+    emailAVL.insertIntoEmailAVL(User(s + 1, email, username, password, fullname));
+    idTree.insertIntoEmailAVL(User(s + 1, email, username, password, fullname));
     writeToFile("Assets/loginDetails.txt", s + 1, email, username, password, fullname);
 
     // greting

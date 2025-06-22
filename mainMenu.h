@@ -1,6 +1,6 @@
 #include "Login+SignUpFunctions.h"
 
-void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int postSize, DoublyLinkedList<Pair> &likePairs, DoublyLinkedList<Comment> &comments, DoublyLinkedList<Pair> &requestPairs, AVL &users)
+void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int postSize, DoublyLinkedList<Pair> &likePairs, DoublyLinkedList<Comment> &comments, DoublyLinkedList<Pair> &requestPairs, AVL &idTree)
 {
     system("chcp 65001");
     system("CLS");
@@ -89,9 +89,9 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
     else if (choice == 'S' || choice == 's')
     {
         string str;
-        cout << "Enter name to search: ";
+        cout << "🔎 Enter name to search: ";
         getline(cin, str);
-        users.inOrderSearch(str);
+        data.inOrderSearch(str);
 
         cout << "Press 'F' to send friend request to anyone from the list\n";
         cout << "Press 'B' to go back\n";
@@ -101,7 +101,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             int uid{};
             cout << "Enter UserID to send request: ";
             cin >> uid;
-            if (uid > 0 && uid <= users.size())
+            if (uid > 0 && uid <= data.size())
             {
                 if (requestAlreadySent(currentUser.getID(), uid, requestPairs))
                 {
@@ -126,5 +126,31 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 system("pause");
             }
         }
+    }
+    else if (choice == 'R' || choice == 'r')
+    {
+        for (int i = 0; i < requestPairs.size(); i++)
+        {
+            system("CLS");
+            if (requestPairs[i].getP2() == currentUser.getID())
+            {
+                User sender = idTree.searchUserByID(requestPairs[i].getP1());
+                cout << "📨 Friend request received from: " << sender.getFullname() << endl;
+                cout << "✅ Press 'A' to accept the request\n";
+                cout << "❌ Press 'R' to reject it\n";
+                cout << "🤔 Press 'I' to ignore for now\n";
+                char ch = _getch();
+                if (ch == 'A' || ch == 'a')
+                {
+                    writeToRequestFile("Assets/friends.txt", sender.getID(), currentUser.getID());
+                    requestPairs.deleteAtIndex(i);
+                    updateLikePairs("Assets/requests.txt", requestPairs);
+                    i--;
+                    cout << "🤝 You are now friends with " << sender.getFullname() << endl;
+                    system("pause");
+                }
+            }
+        }
+        system("pause");
     }
 }

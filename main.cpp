@@ -11,6 +11,7 @@ int main()
     system("CLS");
     AVL data;
     AVL emailTree;
+    AVL idTree;
     DoublyLinkedList<Post> postsLL;
     DoublyLinkedList<Pair> likePairs;
     DoublyLinkedList<Comment> comments;
@@ -18,7 +19,7 @@ int main()
     DoublyLinkedList<Pair> friendPairs;
 back:
 
-    int loginSize = readFromFile("Assets/loginDetails.txt", data, emailTree);
+    int loginSize = readFromFile("Assets/loginDetails.txt", data, emailTree, idTree);
     char ch = welcomePage();
     int postsSize = readFromFile("Assets/posts.txt", postsLL);
     int pairSize = readFromLikePairFiles("Assets/likePairs.txt", likePairs);
@@ -51,13 +52,13 @@ back:
         } while (currentUser.getID() == 0);
 
         if (currentUser.getID() != 0)
-            mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, data);
+            mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, idTree);
     }
     else if (ch == 'S' || ch == 's')
     {
         system("CLS");
-        User currentUser = signUp(data, emailTree);
-        mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, data);
+        User currentUser = signUp(data, emailTree, idTree);
+        mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, idTree);
     }
     goto back;
     return 0;

@@ -2,7 +2,6 @@
 #include "user.h"
 using namespace std;
 
-
 class Node
 {
 public:
@@ -120,6 +119,20 @@ class AVL
         }
         return rotate(temp);
     }
+    Node *insertHelperID(Node *temp, User val)
+    {
+        if (temp == nullptr)
+            return new Node(val);
+        if (temp->data.getID() < val.getID())
+        {
+            temp->right = insertHelperID(temp->right, val);
+        }
+        if (temp->data.getID() > val.getID())
+        {
+            temp->left = insertHelperID(temp->left, val);
+        }
+        return rotate(temp);
+    }
     User searchByUsername(Node *temp, string key)
     {
         if (temp == nullptr)
@@ -139,6 +152,16 @@ class AVL
         if (temp->data.getEmail() < key)
             return searchByEmail(temp->right, key);
         return searchByEmail(temp->left, key);
+    }
+    User searchByID(Node *temp, int key)
+    {
+        if (temp == nullptr)
+            return User();
+        if (temp->data.getID() == key)
+            return temp->data;
+        if (temp->data.getID() < key)
+            return searchByID(temp->right, key);
+        return searchByID(temp->left, key);
     }
     int getMaxIDHelper(Node *temp)
     {
@@ -170,9 +193,9 @@ class AVL
         }
         inOrderSearchHelper(temp->right, str);
     }
-    int sizeHelper(Node* temp)
+    int sizeHelper(Node *temp)
     {
-        if(temp == nullptr)
+        if (temp == nullptr)
             return 0;
         return 1 + sizeHelper(temp->left) + sizeHelper(temp->right);
     }
@@ -189,6 +212,10 @@ public:
     {
         root = insertHelperEmail(root, data);
     }
+    void insertIntoIDAVL(User data)
+    {
+        root = insertHelperID(root, data);
+    }
     User searchByUser(string val)
     {
         return searchByUsername(root, val);
@@ -196,6 +223,10 @@ public:
     User searchUserByEmail(string val)
     {
         return searchByEmail(root, val);
+    }
+    User searchUserByID(int val)
+    {
+        return searchByID(root, val);
     }
     int getMaxID()
     {
