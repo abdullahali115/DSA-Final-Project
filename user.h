@@ -22,6 +22,26 @@ public:
         password = p;
         fullname = f;
     }
+    User(const User &obj)
+    {
+        id = obj.id;
+        email = obj.email;
+        username = obj.username;
+        password = obj.password;
+        fullname = obj.fullname;
+    }
+    User &operator=(const User &obj)
+    {
+        if (this != &obj)
+        {
+            id = obj.id;
+            email = obj.email;
+            username = obj.username;
+            password = obj.password;
+            fullname = obj.fullname;
+        }
+        return *this;
+    }
     void setID(int i)
     {
         id = i;

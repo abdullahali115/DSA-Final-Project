@@ -1,9 +1,12 @@
-#include <iostream>
 #include <iomanip>
+#include <conio.h>
 #include <fstream>
+#include "pairs.h"
 #include "AVLTree.h"
-#include "LinkedList.h"
 #include "posts.h"
+#include "Stack.h"
+#include "comment.h"
+
 using namespace std;
 
 class User;
@@ -130,6 +133,146 @@ bool isSame(string arr1, string arr2)
     return true;
 }
 
+int updateLikePairs(string filename, DoublyLinkedList<Pair> &likePairs)
+{
+    ofstream fout(filename);
+    int i = 0;
+    int s = likePairs.size();
+    if (fout.is_open())
+    {
+        while (i < s)
+        {
+            fout << likePairs[i].getP1() << " ";
+            fout << likePairs[i].getP2() << "\n";
+            i++;
+        }
+    }
+    fout.close();
+    return i;
+}
+int updatePosts(string filename, DoublyLinkedList<Post> &postsLL)
+{
+    ofstream fout(filename);
+    int i = 0;
+    int s = postsLL.size();
+    if (fout.is_open())
+    {
+        while (i < s)
+        {
+            Post temp = postsLL[i];
+            fout << temp.getpostid() << " " << temp.getuserid() << " " << temp.getnoOflikes() << " " << temp.getnoOfComments() << " " << temp.getPost() << "\n";
+            i++;
+        }
+    }
+    fout.close();
+    return i;
+}
+void writeToCommentsFile(string filename, int comid, int postid, int userid, string com)
+{
+    fstream fout(filename, ios::app);
+    if (!fout)
+    {
+        ofstream file(filename);
+        file.close();
+        fout.open(filename, ios::app);
+    }
+    if (fout.is_open())
+    {
+        fout << comid << " " << postid << " " << userid << " " << com << "\n";
+    }
+}
+int readFromCommentFiles(string filename, DoublyLinkedList<Comment> &comments)
+{
+    fstream fin(filename, ios::in);
+    if (!fin)
+    {
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
+    int i = 0;
+    int comID{};
+    int postID{};
+    int userID{};
+    string comment{};
+    if (fin.is_open())
+    {
+        while (fin >> comID)
+        {
+            fin >> postID;
+            fin >> userID;
+            fin.ignore();
+            getline(fin, comment);
+            comments.insertAtTail(Comment(comID, postID, userID, comment));
+            i++;
+        }
+    }
+    fin.close();
+    return i;
+}
+void writeToRequestFile(string filename, int sender, int receiver)
+{
+    fstream fout(filename, ios::app);
+    if (!fout)
+    {
+        ofstream file(filename);
+        file.close();
+        fout.open(filename, ios::app);
+    }
+    if (fout.is_open())
+    {
+        fout << sender << " " << receiver << "\n";
+    }
+}
+int readFromRequestFile(string filename, DoublyLinkedList<Pair>& requestPairs)
+{
+    fstream fin(filename, ios::in);
+    if (!fin)
+    {
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
+    int i = 0;
+    int u1;
+    int u2;
+    if (fin.is_open())
+    {
+        while (fin >> u1)
+        {
+            fin >> u2;
+            requestPairs.insertAtTail(Pair(u1, u2));
+            i++;
+        }
+    }
+    fin.close();
+    return i;
+}
+int readFromLikePairFiles(string filename, DoublyLinkedList<Pair> &likePairs)
+{
+    fstream fin(filename, ios::in);
+    if (!fin)
+    {
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
+    int i = 0;
+    int p1{};
+    int p2{};
+    if (fin.is_open())
+    {
+        while (fin >> p1)
+        {
+            fin >> p2;
+            likePairs.insertAtTail(Pair(p1, p2));
+            i++;
+        }
+    }
+    fin.close();
+    return i;
+}
+
 int readFromFile(string filename, AVL &data, AVL &emailAVL)
 {
     fstream fin(filename, ios::in);
@@ -174,20 +317,25 @@ int readFromFile(string filename, DoublyLinkedList<Post> &postsLL)
     string post{};
     int userid{};
     int postid{};
+    int likes{};
+    int comments{};
     if (fin.is_open())
     {
         while (fin >> postid)
         {
             fin >> userid;
+            fin >> likes;
+            fin >> comments;
+            fin.ignore();
             getline(fin, post);
-            postsLL.insertAtTail(Post(postid, userid, post));
+            postsLL.insertAtTail(Post(postid, userid, post, likes, comments));
             i++;
         }
     }
     fin.close();
     return i;
 }
-void writeToFile(string filename, int postid, int userid, string post)
+void writeToFile(string filename, int postid, int userid, string post, int likes, int comments)
 {
     fstream fout(filename, ios::app);
     if (!fout)
@@ -198,16 +346,16 @@ void writeToFile(string filename, int postid, int userid, string post)
     }
     if (fout.is_open())
     {
-        fout << postid << " " << userid << " " << post << "\n";
+        fout << postid << " " << userid << " " << likes << " " << comments << " " << post << "\n";
     }
 }
 
-int login(string email, string password, AVL &data)
+User login(string email, string password, AVL &data)
 {
     User temp = data.searchUserByEmail(email);
     if (email == temp.getEmail() && password == temp.getPassword())
-        return temp.getID();
-    return 0;
+        return temp;
+    return User();
 }
 int existCheckUserName(string username, AVL &data)
 {
@@ -220,6 +368,26 @@ int existCheckEmail(string email, AVL &data)
     return temp.getID();
 }
 
+bool requestAlreadySent(int sender, int receiver, DoublyLinkedList<Pair>& requests)
+{
+    int s = requests.size();
+    for (int i = 0; i < s;i++)
+    {
+        if(sender == requests[i].getP1() && receiver == requests[i].getP2())
+            return true;
+    }
+    return false;
+}
+bool requestAlreadyReceived(int sender, int receiver, DoublyLinkedList<Pair>& requests)
+{
+    int s = requests.size();
+    for (int i = 0; i < s;i++)
+    {
+        if(sender == requests[i].getP2() && receiver == requests[i].getP1())
+            return true;
+    }
+    return false;
+}
 bool isAlreadyExist(string toBeChanged, AVL &data, AVL &emailAVL, string &arr, int choice)
 {
     bool cond = false;
@@ -253,7 +421,7 @@ bool isAlreadyExist(string toBeChanged, AVL &data, AVL &emailAVL, string &arr, i
     return cond;
 }
 
-int signUp(AVL &data, AVL &emailAVL)
+User signUp(AVL &data, AVL &emailAVL)
 {
     string email{}, password{}, username{}, fullname{};
     int id{};
@@ -295,31 +463,39 @@ int signUp(AVL &data, AVL &emailAVL)
 
     // greting
 
-    return s + 1;
+    return User(s + 1, email, username, password, fullname);
 }
 
-void mainMenu(int id, AVL &data, DoublyLinkedList<Post> &postsLL, int postSize)
+void displayPost(string username, string content, int likes, int comments)
 {
-    system("chcp 65001");
-    system("CLS");
-    cout << "📜 Press 'F' to view the feed\n";
-    cout << "📥 Press 'I' to go to inbox\n";
-    cout << "🔍 Press 'S' to search any user\n";
-    cout << "✍️ Press 'C' to create a new post\n";
-    cout << "👤 Press 'P' to view your profile\n";
-    char choice = _getch();
-
-    if (choice == 'C' || choice == 'c')
+    const int conwidth = 50;
+    const int bWidth = conwidth + 7;
+    const int fullWIdth = 100;
+    const int padding = (fullWIdth - bWidth) / 2;
+    int contLen = content.length();
+    int lines = (contLen + conwidth - 1) / conwidth;
+    string pad(padding, ' ');
+    cout << pad << string(bWidth, '=') << '\n';
+    string user = "👤 @" + username + "    ";
+    cout << pad << "| " << user << string(conwidth - user.length() + 4, ' ') << "   |\n";
+    for (int i = 0; i < lines; ++i)
     {
-        string post{};
-        system("CLS");
-        cout << "What's on your mind today?: ";
-        do
-        {
-            getline(cin, post);
-        } while (post.size() == 0);
-
-        postsLL.insertAtTail(Post(postSize + 1, id, post));
-        writeToFile("Assets/posts.txt", postSize + 1, id, post);
+        string line = content.substr(i * conwidth, conwidth);
+        cout << pad << "|   " << line << string(conwidth - line.length(), ' ') << "   |\n";
     }
+    cout << pad << "|   " << string(conwidth, ' ') << "   |\n";
+    string lastLine = "💕 " + to_string(likes) + "   💬 " + to_string(comments);
+    cout << pad << "|   " << lastLine << string(conwidth - lastLine.length() + 4, ' ') << "   |\n";
+
+    cout << pad << string(bWidth, '=') << '\n';
+}
+bool isAlreadyLiked(int p1, int p2, DoublyLinkedList<Pair> &likePairs)
+{
+    int s = likePairs.size();
+    for (int i = 0; i < s; i++)
+    {
+        if (likePairs[i].getP1() == p1 && likePairs[i].getP2() == p2)
+            return true;
+    }
+    return false;
 }

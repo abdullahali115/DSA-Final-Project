@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 using namespace std;
 
 template <typename T>
@@ -8,12 +9,7 @@ struct LLNode
     LLNode *prev;
     LLNode *next;
 
-    LLNode(T d)
-    {
-        data = d;
-        prev = NULL;
-        next = NULL;
-    }
+    LLNode(T d) : data(d), prev(nullptr), next(nullptr) {}
 };
 
 template <typename T>
@@ -24,92 +20,92 @@ private:
     LLNode<T> *tail;
 
 public:
-    DoublyLinkedList()
+    DoublyLinkedList() : head(nullptr), tail(nullptr) {}
+
+    ~DoublyLinkedList()
     {
-        head = NULL;
-        tail = NULL;
+        while (head != nullptr)
+            deleteAtHead();
     }
 
     void insertAtHead(T data)
     {
-        LLNode<T> *newLLNode = new LLNode<T>(data);
-        if (head == NULL)
+        LLNode<T> *newNode = new LLNode<T>(data);
+        if (!head)
         {
-            head = newLLNode;
-            tail = newLLNode;
+            head = tail = newNode;
         }
         else
         {
-            newLLNode->next = head;
-            head->prev = newLLNode;
-            head = newLLNode;
+            newNode->next = head;
+            head->prev = newNode;
+            head = newNode;
         }
     }
 
     void insertAtTail(T data)
     {
-        LLNode<T> *newLLNode = new LLNode<T>(data);
-        if (tail == NULL)
+        LLNode<T> *newNode = new LLNode<T>(data);
+        if (!tail)
         {
-            head = newLLNode;
-            tail = newLLNode;
+            head = tail = newNode;
         }
         else
         {
-            newLLNode->prev = tail;
-            tail->next = newLLNode;
-            tail = newLLNode;
+            tail->next = newNode;
+            newNode->prev = tail;
+            tail = newNode;
         }
     }
 
-    void deleteAtHead()
+    T deleteAtHead()
     {
-        if (head == NULL)
-        {
-            cout << "List is empty!" << endl;
-            return;
-        }
+        if (!head)
+            throw out_of_range("Cannot delete from empty list");
+
+        T data = head->data;
         LLNode<T> *temp = head;
+
         if (head == tail)
         {
-            head = NULL;
-            tail = NULL;
+            head = tail = nullptr;
         }
         else
         {
             head = head->next;
-            head->prev = NULL;
+            head->prev = nullptr;
         }
+
         delete temp;
+        return data;
     }
 
-    void deleteAtTail()
+    T deleteAtTail()
     {
-        if (tail == NULL)
-        {
-            cout << "List is empty!" << endl;
-            return;
-        }
+        if (!tail)
+            throw out_of_range("Cannot delete from empty list");
+
+        T data = tail->data;
         LLNode<T> *temp = tail;
+
         if (head == tail)
         {
-            head = NULL;
-            tail = NULL;
+            head = tail = nullptr;
         }
         else
         {
             tail = tail->prev;
-            tail->next = NULL;
+            tail->next = nullptr;
         }
+
         delete temp;
+        return data;
     }
+
     void deleteAtIndex(int index)
     {
-        if (head == NULL)
-        {
-            cout << "List is empty!" << endl;
-            return;
-        }
+        if (!head)
+            throw out_of_range("List is empty");
 
         if (index == 0)
         {
@@ -120,17 +116,14 @@ public:
         LLNode<T> *temp = head;
         int count = 0;
 
-        while (temp != NULL && count < index)
+        while (temp && count < index)
         {
             temp = temp->next;
             count++;
         }
 
-        if (temp == NULL)
-        {
-            cout << "Index out of range!" << endl;
-            return;
-        }
+        if (!temp)
+            throw out_of_range("Index out of range");
 
         if (temp == tail)
         {
@@ -140,48 +133,55 @@ public:
 
         temp->prev->next = temp->next;
         temp->next->prev = temp->prev;
-
         delete temp;
     }
 
-    void displayForward()
+    void displayForward() const
     {
         LLNode<T> *temp = head;
-        while (temp != NULL)
+        while (temp)
         {
             cout << temp->data << " ";
             temp = temp->next;
         }
         cout << endl;
     }
-    int size()
-    {
-        int count{};
-        LLNode<T> *temp = head;
-        while (temp != NULL)
-        {
-            temp = temp->next;
-            count++;
-        }
-        return count;
-    }
-    T operator[](int index)
+
+    int size() const
     {
         int count = 0;
         LLNode<T> *temp = head;
-        while (temp != NULL)
+        while (temp)
         {
-            if (index == count)
+            count++;
+            temp = temp->next;
+        }
+        return count;
+    }
+
+    T &operator[](int index)
+    {
+        int count = 0;
+        LLNode<T> *temp = head;
+        while (temp)
+        {
+            if (count == index)
                 return temp->data;
             count++;
+            temp = temp->next;
         }
-        T obj;
-        return obj;
+        throw out_of_range("Index out of range in operator[]");
     }
-    T getTail()
+
+    T getTail() const
     {
-        if(tail == nullptr)
-            return NULL;
+        if (!tail)
+            throw out_of_range("Tail does not exist");
         return tail->data;
+    }
+
+    bool isEmpty() const
+    {
+        return head == nullptr;
     }
 };

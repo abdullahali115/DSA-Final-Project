@@ -2,24 +2,33 @@
 #include <string>
 #include <conio.h>
 #include "WelcomePage.h"
-#include "Login+SignUpFunctions.h"
+#include "mainMenu.h"
 using namespace std;
 
 int main()
 {
+    system("chcp 65001");
+    system("CLS");
     AVL data;
     AVL emailTree;
     DoublyLinkedList<Post> postsLL;
+    DoublyLinkedList<Pair> likePairs;
+    DoublyLinkedList<Comment> comments;
+    DoublyLinkedList<Pair> requestPairs;
+    DoublyLinkedList<Pair> friendPairs;
 back:
-    int loginSize = readFromFile("Assets/loginDetails.txt", data, emailTree);
-    int postsSize = readFromFile("Assets/posts.txt", postsLL);
 
+    int loginSize = readFromFile("Assets/loginDetails.txt", data, emailTree);
     char ch = welcomePage();
+    int postsSize = readFromFile("Assets/posts.txt", postsLL);
+    int pairSize = readFromLikePairFiles("Assets/likePairs.txt", likePairs);
+    int commentSize = readFromCommentFiles("Assets/comments.txt", comments);
+    int requests = readFromRequestFile("Assets/requests.txt", requestPairs);
     string email{}, password{}, username{}, fullname{}, id{};
 
     if (ch == 'l' || ch == 'L')
     {
-        int userID = 0;
+        User currentUser;
         bool check = true;
         do
         {
@@ -35,20 +44,19 @@ back:
             {
                 break;
             }
-
-            userID = login(email, password, emailTree);
-            if (userID == 0)
+            currentUser = login(email, password, emailTree);
+            if (currentUser.getID() == 0)
                 check = false;
-        } while (userID == 0);
+        } while (currentUser.getID() == 0);
 
-        if (userID != 0)
-            mainMenu(userID, data, postsLL, postsSize);
+        if (currentUser.getID() != 0)
+            mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs);
     }
     else if (ch == 'S' || ch == 's')
     {
         system("CLS");
-        int userID = signUp(data, emailTree);
-        mainMenu(userID, data, postsLL, postsSize);
+        User currentUser = signUp(data, emailTree);
+        mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs);
     }
     goto back;
     return 0;
