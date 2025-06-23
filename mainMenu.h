@@ -7,11 +7,13 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
     {
         system("chcp 65001");
         system("CLS");
+        cout << setw(60) << "================ Welcome " << currentUser.getFullname() << " ==================\n\n\n";
         cout << "📜 Press 'F' to view the feed\n";
         cout << "📥 Press 'I' to go to inbox\n";
         cout << "🔍 Press 'S' to search any user\n";
         cout << "✍️ Press 'C' to create a new post\n";
         cout << "📨 Press 'R' to view the friend requests received\n";
+        cout << "🔐 Press 'P' to update your password\n";
         cout << "🚪 Press '0' to exit\n";
         choice = _getch();
 
@@ -88,6 +90,11 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                             cout << "🤝 You've already received a friend request from this user. Consider accepting it instead.😃\n";
                             system("pause");
                         }
+                        else if (currentUser.getID() == postsLL[i].getuserid())
+                        {
+                            cout << "Error! Can't send friend request to yourself 😁\n";
+                            system("pause");
+                        }
                         else
                         {
                             writeToRequestFile("Assets/requests.txt", currentUser.getID(), postsLL[i].getuserid());
@@ -118,7 +125,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             cout << "🔎 Enter name to search: ";
             cin.ignore();
             getline(cin, str);
-            bool check = data.inOrderSearch(str);
+            bool check = data.inOrderSearch(str, currentUser.getUsername());
             if (check)
             {
                 cout << "Press 'F' to send friend request to anyone from the list\n";
@@ -139,6 +146,11 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                         else if (requestAlreadyReceived(currentUser.getID(), uid, requestPairs))
                         {
                             cout << "🤝 You've already received a friend request from this user. Consider accepting it instead.😃\n";
+                            system("pause");
+                        }
+                        else if (currentUser.getID() == uid)
+                        {
+                            cout << "Error! Can't send friend request to yourself 😁\n";
                             system("pause");
                         }
                         else if (requestAlreadyReceived(currentUser.getID(), uid, friends) || requestAlreadyReceived(uid, currentUser.getID(), friends))
@@ -215,60 +227,98 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
         else if (choice == 'i' || choice == 'I')
         {
             system("CLS");
-            cout << setw(80) << "================ Welcome To your Inbox ==================\n";
-
+            cout << setw(80) << "================ Welcome To your Inbox ==================\n\n\n";
+            bool check = false;
             int i = 0;
             for (i; i < friends.size(); i++)
             {
-                system("CLS");
                 if (friends[i].getP2() == currentUser.getID())
                 {
+                    check = true;
                     User sender = idTree.searchUserByID(friends[i].getP1());
                     cout << "Friend ID: " << sender.getID() << " Name: " << sender.getFullname() << endl;
                 }
             }
-            int uid{};
-            cout << "Enter UserID of the friend to chat with [Enter 0 to go back]: ";
-            cin >> uid;
-            while (!requestAlreadyReceived(currentUser.getID(), uid, friends) && !requestAlreadyReceived(uid, currentUser.getID(), friends))
+            if (check)
             {
-                if (uid == 0)
-                    break;
-                cout << "UserID not found\n";
-                cout << "Enter again [Enter 0 to go back]: ";
+                int uid{};
+                cout << "\n\nEnter UserID of the friend to chat with [Enter 0 to go back]: ";
                 cin >> uid;
-                if (uid == 0)
-                    break;
-            }
-            if (uid != 0)
-            {
-                char ch{};
-                do
+                while (!requestAlreadyReceived(currentUser.getID(), uid, friends) && !requestAlreadyReceived(uid, currentUser.getID(), friends))
                 {
-                    User friendInbox = idTree.searchUserByID(uid);
-                    showChats(currentUser, friendInbox, chats);
+                    if (uid == 0)
+                        break;
+                    cout << "UserID not found\n";
+                    cout << "Enter again [Enter 0 to go back]: ";
+                    cin >> uid;
+                    if (uid == 0)
+                        break;
+                }
+                if (uid != 0)
+                {
+                    char ch{};
+                    do
+                    {
+                        User friendInbox = idTree.searchUserByID(uid);
+                        showChats(currentUser, friendInbox, chats);
 
-                    cout << "Enter 'S' to send a message\n";
-                    cout << "Enter 'R' to reload chat\n";
-                    cout << "Enter 'B' to go back to main menu\n";
-                    ch = _getch();
-                    if (ch == 's' || ch == 'S')
-                    {
-                        system("CLS");
-                        showChats(currentUser, friendInbox, chats);
-                        string m;
-                        cout << "Enter the message you want to send: ";
-                        if (cin.peek() == '\n')
-                            cin.ignore();
-                        getline(cin, m);
-                        chats.insertAtTail(Chat(m, currentUser.getID(), friendInbox.getID()));
-                        writeChat("Assets/chats.txt", currentUser, friendInbox, m, chats);
-                    }
-                    else if (ch == 'R' || ch == 'r')
-                    {
-                        showChats(currentUser, friendInbox, chats);
-                    }
-                } while (ch != 'B' && ch != 'b');
+                        cout << "Enter 'S' to send a message\n";
+                        cout << "Enter 'R' to reload chat\n";
+                        cout << "Enter 'B' to go back to main menu\n";
+                        ch = _getch();
+                        if (ch == 's' || ch == 'S')
+                        {
+                            system("CLS");
+                            showChats(currentUser, friendInbox, chats);
+                            string m;
+                            cout << "Enter the message you want to send: ";
+                            if (cin.peek() == '\n')
+                                cin.ignore();
+                            getline(cin, m);
+                            chats.insertAtTail(Chat(m, currentUser.getID(), friendInbox.getID()));
+                            writeChat("Assets/chats.txt", currentUser, friendInbox, m, chats);
+                        }
+                        else if (ch == 'R' || ch == 'r')
+                        {
+                            showChats(currentUser, friendInbox, chats);
+                        }
+                    } while (ch != 'B' && ch != 'b');
+                    system("pause");
+                }
+            }
+            else
+            {
+                cout << "😊 You haven't added any friends yet. Why not start now and say hi? 👋\n";
+                system("pause");
+            }
+        }
+        else if (choice == 'P' || choice == 'p')
+        {
+            string curPass{};
+            cout << "Enter your current Password: ";
+            curPass = getHiddenPassword();
+            if (curPass == currentUser.getPassword())
+            {
+                cout << "Enter new password: ";
+                string newPass = getHiddenPassword();
+                cout << "Confirm new password: ";
+                curPass = getHiddenPassword();
+                if (curPass == newPass)
+                {
+                    data.deleteUser(currentUser.getUsername());
+                    currentUser.setPassword(newPass);
+                    data.insertIntoUserAVL(currentUser);
+                    data.updateFile("Assets/loginDetails.txt");
+                }
+                else
+                {
+                    cout << "Passwords didn't match\n";
+                    system("pause");
+                }
+            }
+            else
+            {
+                cout << "Invalid Password! Unable to change\n";
                 system("pause");
             }
         }

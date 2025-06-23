@@ -323,7 +323,7 @@ int loadMessages(string filename, DoublyLinkedList<Chat> &chats)
     fin.close();
     return i;
 }
-void showChats(User currentUser, User& friendInbox, DoublyLinkedList<Chat>& chats)
+void showChats(User currentUser, User &friendInbox, DoublyLinkedList<Chat> &chats)
 {
     system("CLS");
     string name = friendInbox.getFullname();
@@ -343,7 +343,7 @@ void showChats(User currentUser, User& friendInbox, DoublyLinkedList<Chat>& chat
         }
     }
 }
-void writeChat(string filename, User& currentUser, User& receiver, string message, DoublyLinkedList<Chat>& chats)
+void writeChat(string filename, User &currentUser, User &receiver, string message, DoublyLinkedList<Chat> &chats)
 {
     fstream fout(filename, ios::app);
     if (!fout)
@@ -575,6 +575,8 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
         password = getHiddenPassword();
     }
     cout << "Enter Full Name: ";
+    if (cin.peek() == '\n')
+        cin.ignore();
     getline(cin, fullname);
     int s = data.getMaxID();
     convertToLower(username);

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "user.h"
 using namespace std;
 
@@ -171,6 +172,14 @@ class AVL
             return temp->data.getID();
         return getMaxIDHelper(temp->right);
     }
+    Node *getMax(Node *temp)
+    {
+        if (temp == nullptr)
+            return 0;
+        if (temp->right == nullptr)
+            return temp;
+        return getMax(temp->right);
+    }
     void inOrderHelper(Node *temp)
     {
         if (temp == nullptr)
@@ -179,26 +188,75 @@ class AVL
         cout << temp->data.getID() << " ";
         inOrderHelper(temp->right);
     }
-    void inOrderSearchHelper(Node *temp, string str, bool& check)
+    void inOrderSearchHelper(Node *temp, string str, string notInclude, bool &check)
     {
         if (temp == nullptr)
             return;
-        inOrderSearchHelper(temp->left, str, check);
+        inOrderSearchHelper(temp->left, str, notInclude, check);
         string tempStr = temp->data.getFullname();
         ToLower(tempStr);
         ToLower(str);
-        if (tempStr.find(str) != string::npos)
+        if (tempStr.find(str) != string::npos && temp->data.getUsername() != notInclude)
         {
             check = true;
             cout << "UserID: " << temp->data.getID() << " Full Name: " << temp->data.getFullname() << " Username: " << temp->data.getUsername() << endl;
         }
-        inOrderSearchHelper(temp->right, str, check);
+        inOrderSearchHelper(temp->right, str, notInclude, check);
     }
     int sizeHelper(Node *temp)
     {
         if (temp == nullptr)
             return 0;
         return 1 + sizeHelper(temp->left) + sizeHelper(temp->right);
+    }
+    void updateFileHelper(ofstream &file, Node *temp)
+    {
+        if (temp == nullptr)
+            return;
+        inOrderHelper(temp->left);
+        file << temp->data.getID() << " ";
+        file << temp->data.getEmail() << " ";
+        file << temp->data.getUsername() << " ";
+        file << temp->data.getPassword() << " ";
+        file << temp->data.getFullname() << "\n";
+        inOrderHelper(temp->right);
+    }
+    Node *deleteFromBST(Node *temp, string key)
+    {
+        if (temp == nullptr)
+            return nullptr;
+        if (temp->data.getUsername() > key)
+            temp->left = deleteFromBST(temp->left, key);
+        else if (temp->data.getUsername() < key)
+            temp->right = deleteFromBST(temp->right, key);
+        else
+        {
+            // case 1 + 2
+            if (temp->right == nullptr)
+            {
+                Node *temp2 = temp->left;
+                delete temp;
+                return temp2;
+            }
+            else if (temp->left == nullptr)
+            {
+                Node *temp2 = temp->right;
+                delete temp;
+                return temp2;
+            }
+            // case 3
+            else
+            {
+                Node *inOrder = getMax(temp->right);
+                temp->data.setID(inOrder->data.getID());
+                temp->data.setEmail(inOrder->data.getEmail());
+                temp->data.setUsername(inOrder->data.getUsername());
+                temp->data.setPassword(inOrder->data.getPassword());
+                temp->data.setFullname(inOrder->data.getFullname());
+                temp->right = deleteFromBST(temp->right, inOrder->data.getUsername());
+            }
+        }
+        return temp;
     }
 
 public:
@@ -237,14 +295,28 @@ public:
     {
         inOrderHelper(root);
     }
-    bool inOrderSearch(string str)
+    bool inOrderSearch(string str, string notInclude)
     {
         bool check = false;
-        inOrderSearchHelper(root, str, check);
+        inOrderSearchHelper(root, str, notInclude, check);
         return check;
     }
     int size()
     {
         return sizeHelper(root);
+    }
+    void updateFile(string filename)
+    {
+        ofstream file(filename);
+        if (file.is_open())
+        {
+            updateFileHelper(file, root);
+            file.close();
+        }
+        return;
+    }
+    void deleteUser(string username)
+    {
+        root = deleteFromBST(root, username);
     }
 };
