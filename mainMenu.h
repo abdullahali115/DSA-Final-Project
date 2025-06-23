@@ -125,10 +125,11 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             cout << "🔎 Enter name to search: ";
             cin.ignore();
             getline(cin, str);
+            cout << "\n\n";
             bool check = data.inOrderSearch(str, currentUser.getUsername());
             if (check)
             {
-                cout << "Press 'F' to send friend request to anyone from the list\n";
+                cout << "\n\nPress 'F' to send friend request to anyone from the list\n";
                 cout << "Press 'B' to go back\n";
                 char ch = _getch();
                 if (ch == 'F' || ch == 'f')
