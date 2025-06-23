@@ -6,6 +6,7 @@
 #include "posts.h"
 #include "Stack.h"
 #include "comment.h"
+#include "chats.h"
 
 using namespace std;
 
@@ -294,7 +295,69 @@ int readFromLikePairFiles(string filename, DoublyLinkedList<Pair> &likePairs)
     fin.close();
     return i;
 }
-
+int loadMessages(string filename, DoublyLinkedList<Chat> &chats)
+{
+    fstream fin(filename, ios::in);
+    if (!fin)
+    {
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
+    int i = 0;
+    string message{};
+    int senderID{};
+    int receiverID{};
+    if (fin.is_open())
+    {
+        while (fin >> senderID)
+        {
+            fin >> receiverID;
+            if (fin.peek() == '\n')
+                fin.ignore();
+            getline(fin, message);
+            chats.insertAtTail(Chat(message, senderID, receiverID));
+            i++;
+        }
+    }
+    fin.close();
+    return i;
+}
+void showChats(User currentUser, User& friendInbox, DoublyLinkedList<Chat>& chats)
+{
+    system("CLS");
+    string name = friendInbox.getFullname();
+    string msg = "==================== " + name + " ======================";
+    cout << setw((60 + msg.length()) / 2) << "==================== " << friendInbox.getFullname() << " ======================\n";
+    int s = chats.size();
+    for (int i = 0; i < s; i++)
+    {
+        Chat temp = chats[i];
+        if ((temp.getSenderID() == currentUser.getID() && temp.getReceiverID() == friendInbox.getID()))
+        {
+            cout << "[Me] " << temp.getMessage() << endl;
+        }
+        if ((temp.getReceiverID() == currentUser.getID() && temp.getSenderID() == friendInbox.getID()))
+        {
+            cout << "[" << friendInbox.getUsername() << "] " << temp.getMessage() << endl;
+        }
+    }
+}
+void writeChat(string filename, User& currentUser, User& receiver, string message, DoublyLinkedList<Chat>& chats)
+{
+    fstream fout(filename, ios::app);
+    if (!fout)
+    {
+        ofstream file(filename);
+        file.close();
+        fout.open(filename, ios::app);
+    }
+    if (fout.is_open())
+    {
+        fout << currentUser.getID() << " " << receiver.getID() << " " << message << "\n";
+    }
+    showChats(currentUser, receiver, chats);
+}
 int readFromFile(string filename, AVL &data, AVL &emailAVL, AVL &idTree)
 {
     fstream fin(filename, ios::in);

@@ -179,19 +179,20 @@ class AVL
         cout << temp->data.getID() << " ";
         inOrderHelper(temp->right);
     }
-    void inOrderSearchHelper(Node *temp, string str)
+    void inOrderSearchHelper(Node *temp, string str, bool& check)
     {
         if (temp == nullptr)
             return;
-        inOrderSearchHelper(temp->left, str);
+        inOrderSearchHelper(temp->left, str, check);
         string tempStr = temp->data.getFullname();
         ToLower(tempStr);
         ToLower(str);
         if (tempStr.find(str) != string::npos)
         {
+            check = true;
             cout << "UserID: " << temp->data.getID() << " Full Name: " << temp->data.getFullname() << " Username: " << temp->data.getUsername() << endl;
         }
-        inOrderSearchHelper(temp->right, str);
+        inOrderSearchHelper(temp->right, str, check);
     }
     int sizeHelper(Node *temp)
     {
@@ -236,9 +237,11 @@ public:
     {
         inOrderHelper(root);
     }
-    void inOrderSearch(string str)
+    bool inOrderSearch(string str)
     {
-        inOrderSearchHelper(root, str);
+        bool check = false;
+        inOrderSearchHelper(root, str, check);
+        return check;
     }
     int size()
     {

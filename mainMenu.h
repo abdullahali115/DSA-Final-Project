@@ -1,174 +1,276 @@
 #include "Login+SignUpFunctions.h"
 
-void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int postSize, DoublyLinkedList<Pair> &likePairs, DoublyLinkedList<Comment> &comments, DoublyLinkedList<Pair> &requestPairs, AVL &idTree)
+void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int postSize, DoublyLinkedList<Pair> &likePairs, DoublyLinkedList<Comment> &comments, DoublyLinkedList<Pair> &requestPairs, AVL &idTree, DoublyLinkedList<Pair> &friends, DoublyLinkedList<Chat> &chats)
 {
-    system("chcp 65001");
-    system("CLS");
-    cout << "📜 Press 'F' to view the feed\n";
-    cout << "📥 Press 'I' to go to inbox\n";
-    cout << "🔍 Press 'S' to search any user\n";
-    cout << "✍️ Press 'C' to create a new post\n";
-    cout << "📨 Press 'R' to view the friend requests received\n";
-    char choice = _getch();
-
-    if (choice == 'C' || choice == 'c')
+    char choice{};
+    do
     {
-        string post{};
+        system("chcp 65001");
         system("CLS");
-        cout << "What's on your mind today?: ";
-        do
-        {
-            getline(cin, post);
-        } while (post.size() == 0);
+        cout << "📜 Press 'F' to view the feed\n";
+        cout << "📥 Press 'I' to go to inbox\n";
+        cout << "🔍 Press 'S' to search any user\n";
+        cout << "✍️ Press 'C' to create a new post\n";
+        cout << "📨 Press 'R' to view the friend requests received\n";
+        cout << "🚪 Press '0' to exit\n";
+        choice = _getch();
 
-        postsLL.insertAtTail(Post(postSize + 1, currentUser.getID(), post, 0, 0));
-        writeToFile("Assets/posts.txt", postSize + 1, currentUser.getID(), post, 0, 0);
-    }
-    else if (choice == 'F' || choice == 'f')
-    {
-        for (int i = 0; i < postSize; i++)
+        if (choice == 'C' || choice == 'c')
         {
+            string post{};
             system("CLS");
-            displayPost(currentUser.getUsername(), postsLL[i].getPost(), postsLL[i].getnoOflikes(), postsLL[i].getnoOfComments());
-            cout << "Press 'L' to like the post\n";
-            cout << "Press 'C' to comment on the post\n";
-            if (currentUser.getID() != postsLL[i].getuserid())
-                cout << "Press 'F' to send friend request to author\n";
-            if (i > 0)
-                cout << "Press 'B' to go back to previous post\n";
-            char ch = _getch();
-            if (ch == 'L' || ch == 'l')
+            cout << "What's on your mind today?: ";
+            do
             {
-                if (!isAlreadyLiked(postsLL[i].getpostid(), currentUser.getID(), likePairs))
-                {
-                    int t = postsLL[i].getnoOflikes() + 1;
-                    postsLL[i].setnoOflikes(t);
-                    likePairs.insertAtTail(Pair(postsLL[i].getpostid(), currentUser.getID()));
-                    updateLikePairs("Assets/likePairs.txt", likePairs);
-                    updatePosts("Assets/posts.txt", postsLL);
-                    i--;
-                }
-                else
-                {
-                    cout << "You have already liked this post\n";
-                    system("pause");
-                }
-            }
-            else if (ch == 'C' || ch == 'c')
+                getline(cin, post);
+            } while (post.size() == 0);
+
+            postsLL.insertAtTail(Post(postSize + 1, currentUser.getID(), post, 0, 0));
+            writeToFile("Assets/posts.txt", postSize + 1, currentUser.getID(), post, 0, 0);
+        }
+        else if (choice == 'F' || choice == 'f')
+        {
+            bool check = false;
+            int i = 0;
+            while (i < postSize)
             {
-                string comment{};
-                cout << "💬 What would you like to comment on this post? ";
-                getline(cin, comment);
-                writeToCommentsFile("Assets/comments.txt", comments.size() + 1, postsLL[i].getpostid(), currentUser.getID(), comment);
-            }
-            else if (ch == 'F' || ch == 'f')
-            {
+                check = true;
+                system("CLS");
+                displayPost(currentUser.getUsername(), postsLL[i].getPost(), postsLL[i].getnoOflikes(), postsLL[i].getnoOfComments());
+                cout << "Press 'L' to like the post\n";
+                cout << "Press 'C' to comment on the post\n";
+                cout << "Press 'N' to go to the next post\n";
                 if (currentUser.getID() != postsLL[i].getuserid())
+                    cout << "Press 'F' to send friend request to author\n";
+                if (i > 0)
+                    cout << "Press 'B' to go back to previous post\n";
+                cout << "👈 Press '0' to go back\n";
+                char ch = _getch();
+                if (ch == 'L' || ch == 'l')
                 {
-                    readFromRequestFile("Assets/requests.txt", requestPairs);
-                    if (requestAlreadySent(currentUser.getID(), postsLL[i].getuserid(), requestPairs))
+                    if (!isAlreadyLiked(postsLL[i].getpostid(), currentUser.getID(), likePairs))
                     {
-                        cout << "📨 Friend request already sent — waiting for a response.\n";
-                        system("pause");
-                    }
-                    else if (requestAlreadyReceived(currentUser.getID(), postsLL[i].getuserid(), requestPairs))
-                    {
-                        cout << "🤝 You've already received a friend request from this user. Consider accepting it instead.😃\n";
-                        system("pause");
+                        int t = postsLL[i].getnoOflikes() + 1;
+                        postsLL[i].setnoOflikes(t);
+                        likePairs.insertAtTail(Pair(postsLL[i].getpostid(), currentUser.getID()));
+                        updateLikePairs("Assets/likePairs.txt", likePairs);
+                        updatePosts("Assets/posts.txt", postsLL);
                     }
                     else
                     {
-                        writeToRequestFile("Assets/requests.txt", currentUser.getID(), postsLL[i].getuserid());
-                        cout << "✅ Friend request sent successfully!\n";
+                        cout << "You have already liked this post\n";
                         system("pause");
                     }
                 }
+                else if (ch == 'C' || ch == 'c')
+                {
+                    string comment{};
+                    cout << "💬 What would you like to comment on this post? ";
+                    if (cin.peek() == '\n')
+                        cin.ignore();
+                    getline(cin, comment);
+                    writeToCommentsFile("Assets/comments.txt", comments.size() + 1, postsLL[i].getpostid(), currentUser.getID(), comment);
+                    cout << "Comment Published successfully\n";
+                    system("pause");
+                }
+                else if (ch == 'F' || ch == 'f')
+                {
+                    if (currentUser.getID() != postsLL[i].getuserid())
+                    {
+                        readFromRequestFile("Assets/requests.txt", requestPairs);
+                        if (requestAlreadySent(currentUser.getID(), postsLL[i].getuserid(), requestPairs))
+                        {
+                            cout << "📨 Friend request already sent — waiting for a response.\n";
+                            system("pause");
+                        }
+                        else if (requestAlreadyReceived(currentUser.getID(), postsLL[i].getuserid(), requestPairs))
+                        {
+                            cout << "🤝 You've already received a friend request from this user. Consider accepting it instead.😃\n";
+                            system("pause");
+                        }
+                        else
+                        {
+                            writeToRequestFile("Assets/requests.txt", currentUser.getID(), postsLL[i].getuserid());
+                            cout << "✅ Friend request sent successfully!\n";
+                            system("pause");
+                        }
+                    }
+                }
+                else if (ch == 'n' || ch == 'N')
+                    i++;
+                else if ((ch == 'b' || ch == 'B') && i > 0)
+                    i--;
+                else if (ch == '0')
+                    break;
+            }
+            if (i == postSize)
+            {
+                if (check)
+                    cout << "🕵️ Nothing left... you're all caught up! ✅\n\n";
+                else
+                    cout << "📭 No posts available for now. Please check back later! 😊\n";
+                system("pause");
             }
         }
-    }
-    else if (choice == 'S' || choice == 's')
-    {
-        string str;
-        cout << "🔎 Enter name to search: ";
-        getline(cin, str);
-        data.inOrderSearch(str);
-
-        cout << "Press 'F' to send friend request to anyone from the list\n";
-        cout << "Press 'B' to go back\n";
-        char ch = _getch();
-        if (ch == 'F' || ch == 'f')
+        else if (choice == 'S' || choice == 's')
         {
-            int uid{};
-            cout << "Enter UserID to send request: ";
-            cin >> uid;
-            if (uid > 0 && uid <= data.size())
+            string str;
+            cout << "🔎 Enter name to search: ";
+            cin.ignore();
+            getline(cin, str);
+            bool check = data.inOrderSearch(str);
+            if (check)
             {
-                if (requestAlreadySent(currentUser.getID(), uid, requestPairs))
+                cout << "Press 'F' to send friend request to anyone from the list\n";
+                cout << "Press 'B' to go back\n";
+                char ch = _getch();
+                if (ch == 'F' || ch == 'f')
                 {
-                    cout << "📨 Friend request already sent — waiting for a response.\n";
-                    system("pause");
-                }
-                else if (requestAlreadyReceived(currentUser.getID(), uid, requestPairs))
-                {
-                    cout << "🤝 You've already received a friend request from this user. Consider accepting it instead.😃\n";
-                    system("pause");
-                }
-                else
-                {
-                    writeToRequestFile("Assets/requests.txt", currentUser.getID(), uid);
-                    cout << "✅ Friend request sent successfully!\n";
-                    system("pause");
+                    int uid{};
+                    cout << "Enter UserID to send request: ";
+                    cin >> uid;
+                    if (uid > 0 && uid <= data.size())
+                    {
+                        if (requestAlreadySent(currentUser.getID(), uid, requestPairs))
+                        {
+                            cout << "📨 Friend request already sent — waiting for a response.\n";
+                            system("pause");
+                        }
+                        else if (requestAlreadyReceived(currentUser.getID(), uid, requestPairs))
+                        {
+                            cout << "🤝 You've already received a friend request from this user. Consider accepting it instead.😃\n";
+                            system("pause");
+                        }
+                        else if (requestAlreadyReceived(currentUser.getID(), uid, friends) || requestAlreadyReceived(uid, currentUser.getID(), friends))
+                        {
+                            cout << "🤝 You're already friends with this user.😃\n";
+                            system("pause");
+                        }
+                        else
+                        {
+                            writeToRequestFile("Assets/requests.txt", currentUser.getID(), uid);
+                            cout << "✅ Friend request sent successfully!\n";
+                            system("pause");
+                        }
+                    }
+                    else
+                    {
+                        cout << "❌ Invalid UserID entered\n";
+                        system("pause");
+                    }
                 }
             }
             else
             {
-                cout << "❌ Invalid UserID entered\n";
+                cout << "😕 No Users Found 🔍\n";
                 system("pause");
             }
         }
-    }
-    else if (choice == 'R' || choice == 'r')
-    {
-        int i = 0;
-        for (i; i < requestPairs.size(); i++)
+        else if (choice == 'R' || choice == 'r')
         {
-            system("CLS");
-            if (requestPairs[i].getP2() == currentUser.getID())
+            int i = 0;
+            bool check = false;
+            for (i; i < requestPairs.size(); i++)
             {
-                User sender = idTree.searchUserByID(requestPairs[i].getP1());
-                cout << "📨 Friend request received from: " << sender.getFullname() << endl;
-                cout << "✅ Press 'A' to accept the request\n";
-                cout << "❌ Press 'R' to reject it\n";
-                cout << "🤔 Press 'I' to ignore for now\n";
-                char ch = _getch();
-                if (ch == 'A' || ch == 'a')
+                system("CLS");
+                if (requestPairs[i].getP2() == currentUser.getID())
                 {
-                    writeToRequestFile("Assets/friends.txt", sender.getID(), currentUser.getID());
-                    requestPairs.deleteAtIndex(i);
-                    updateLikePairs("Assets/requests.txt", requestPairs);
-                    i--;
-                    cout << "🤝 You are now friends with " << sender.getFullname() << endl;
-                    system("pause");
-                }
-                else if (ch == 'R' || ch == 'r')
-                {
-                    requestPairs.deleteAtIndex(i);
-                    updateLikePairs("Assets/requests.txt", requestPairs);
-                    i--;
-                    cout << "❌ Friend request from " << sender.getFullname() << " has been rejected successfully.\n";
-                    system("pause");
-                }
-                else if (ch == 'I' || ch == 'i')
-                {
-                    cout << "You ignored " << sender.getFullname() << "'s friend request. Maybe later! 😉\n";
-                    system("pause");
+                    check = true;
+                    User sender = idTree.searchUserByID(requestPairs[i].getP1());
+                    cout << "📨 Friend request received from: " << sender.getFullname() << endl;
+                    cout << "✅ Press 'A' to accept the request\n";
+                    cout << "❌ Press 'R' to reject it\n";
+                    cout << "🤔 Press 'I' to ignore for now\n";
+                    char ch = _getch();
+                    if (ch == 'A' || ch == 'a')
+                    {
+                        writeToRequestFile("Assets/friends.txt", sender.getID(), currentUser.getID());
+                        requestPairs.deleteAtIndex(i);
+                        updateLikePairs("Assets/requests.txt", requestPairs);
+                        i--;
+                        cout << "🤝 You are now friends with " << sender.getFullname() << endl;
+                        system("pause");
+                    }
+                    else if (ch == 'R' || ch == 'r')
+                    {
+                        requestPairs.deleteAtIndex(i);
+                        updateLikePairs("Assets/requests.txt", requestPairs);
+                        i--;
+                        cout << "❌ Friend request from " << sender.getFullname() << " has been rejected successfully.\n";
+                        system("pause");
+                    }
+                    else if (ch == 'I' || ch == 'i')
+                    {
+                        cout << "You ignored " << sender.getFullname() << "'s friend request. Maybe later! 😉\n";
+                        system("pause");
+                    }
                 }
             }
+            if (!check)
+            {
+                cout << "😊 You're all caught up! No new friend requests.\n";
+                system("pause");
+            }
         }
-        if (i == 0)
+        else if (choice == 'i' || choice == 'I')
         {
-            cout << "😊 You're all caught up! No new friend requests.\n";
-            system("pause");
+            system("CLS");
+            cout << setw(80) << "================ Welcome To your Inbox ==================\n";
+
+            int i = 0;
+            for (i; i < friends.size(); i++)
+            {
+                system("CLS");
+                if (friends[i].getP2() == currentUser.getID())
+                {
+                    User sender = idTree.searchUserByID(friends[i].getP1());
+                    cout << "Friend ID: " << sender.getID() << " Name: " << sender.getFullname() << endl;
+                }
+            }
+            int uid{};
+            cout << "Enter UserID of the friend to chat with [Enter 0 to go back]: ";
+            cin >> uid;
+            while (!requestAlreadyReceived(currentUser.getID(), uid, friends) && !requestAlreadyReceived(uid, currentUser.getID(), friends))
+            {
+                if (uid == 0)
+                    break;
+                cout << "UserID not found\n";
+                cout << "Enter again [Enter 0 to go back]: ";
+                cin >> uid;
+                if (uid == 0)
+                    break;
+            }
+            if (uid != 0)
+            {
+                char ch{};
+                do
+                {
+                    User friendInbox = idTree.searchUserByID(uid);
+                    showChats(currentUser, friendInbox, chats);
+
+                    cout << "Enter 'S' to send a message\n";
+                    cout << "Enter 'R' to reload chat\n";
+                    cout << "Enter 'B' to go back to main menu\n";
+                    ch = _getch();
+                    if (ch == 's' || ch == 'S')
+                    {
+                        system("CLS");
+                        showChats(currentUser, friendInbox, chats);
+                        string m;
+                        cout << "Enter the message you want to send: ";
+                        if (cin.peek() == '\n')
+                            cin.ignore();
+                        getline(cin, m);
+                        chats.insertAtTail(Chat(m, currentUser.getID(), friendInbox.getID()));
+                        writeChat("Assets/chats.txt", currentUser, friendInbox, m, chats);
+                    }
+                    else if (ch == 'R' || ch == 'r')
+                    {
+                        showChats(currentUser, friendInbox, chats);
+                    }
+                } while (ch != 'B' && ch != 'b');
+                system("pause");
+            }
         }
-    }
+    } while (choice != '0');
 }
