@@ -330,8 +330,19 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             cout << setw(60 - currentUser.getFullname().length()) << "================ Welcome " << currentUser.getFullname() << " to your profile ==================\n\n\n";
             cout << "👤 Username: @" << currentUser.getUsername() << "\n\n";
             cout << "📧 Email: " << currentUser.getEmail() << "\n\n";
-            cout << "👥 Friends: " << countFriends("Assets/friends.txt", currentUser.getID()) << "\n\n";
-            cout << "📝 Posts: " << countPosts("Assets/posts.txt", currentUser.getID()) << endl;
+            cout << "👥 No. of Friends: " << countFriends("Assets/friends.txt", currentUser.getID()) << "\n\n";
+            cout << "📝 No. of Posts: " << countPosts("Assets/posts.txt", currentUser.getID()) << endl;
+
+            cout << "Press 'V' to view your posts and Comments\n";
+            char ch{};
+            do
+            {
+                ch = _getch();
+            } while (ch != 'v' && ch != 'V' && ch != 'B' && ch != 'b');
+            if (ch == 'V' || ch == 'v')
+            {
+                displayPostAndComments(comments, postsLL, currentUser.getID(), currentUser.getUsername());
+            }
             system("pause");
         }
     } while (choice != '0');

@@ -36,6 +36,7 @@ int main()
         do
         {
             system("CLS");
+            cout << setw(84) << "==================== Login Page ====================\n\n\n";
             if (!check)
                 cout << "Incorrect password. Please try again 🙁 [Enter 0 in email and password to quit]\n";
             cout << "Enter your email: ";

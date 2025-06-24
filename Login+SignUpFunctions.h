@@ -605,9 +605,9 @@ bool isAlreadyExist(string toBeChanged, AVL &data, AVL &emailAVL, string &arr, i
     }
     return cond;
 }
-
 User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
 {
+    cout << setw(84) << "==================== Signup Page ====================\n\n\n";
     string email{}, password{}, username{}, fullname{};
     int id{};
     cout << "Enter email: ";
@@ -646,8 +646,6 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
     idTree.insertIntoIDAVL(User(s + 1, email, username, password, fullname));
     writeToFile("Assets/loginDetails.txt", s + 1, email, username, password, fullname);
 
-    // greting
-
     return User(s + 1, email, username, password, fullname);
 }
 
@@ -673,6 +671,28 @@ void displayPost(string username, string content, int likes, int comments)
     cout << pad << "|   " << lastLine << string(conwidth - lastLine.length() + 4, ' ') << "   |\n";
 
     cout << pad << string(bWidth, '=') << '\n';
+}
+void displayPostAndComments(DoublyLinkedList<Comment> &comments, DoublyLinkedList<Post> &postsLL, int uid, string username)
+{
+    int s = postsLL.size();
+    int index = 0;
+    for (int i = 0; i < s; i++)
+    {
+        Post temp = postsLL[i];
+        int c = comments.size();
+        if (temp.getuserid() == uid)
+        {
+            displayPost(username, temp.getPost(), temp.getnoOflikes(), temp.getnoOfComments());
+            for (int j = 0; j < c; j++)
+            {
+                Comment temp2 = comments[j];
+                if (temp.getpostid() == temp2.getPostID())
+                {
+                    cout << index++ << temp2.getComment() << "\n\n";
+                }
+            }
+        }
+    }
 }
 bool isAlreadyLiked(int p1, int p2, DoublyLinkedList<Pair> &likePairs)
 {
