@@ -171,8 +171,9 @@ int updateLikePairs(string filename, DoublyLinkedList<Pair> &likePairs)
     {
         while (i < s)
         {
-            fout << likePairs[i].getP1() << " ";
-            fout << likePairs[i].getP2() << "\n";
+            Pair tempLike = likePairs[i];
+            fout << tempLike.getP1() << " ";
+            fout << tempLike.getP2() << "\n";
             i++;
         }
     }
@@ -188,8 +189,8 @@ int updatePosts(string filename, DoublyLinkedList<Post> &postsLL)
     {
         while (i < s)
         {
-            Post temp = postsLL[i];
-            fout << temp.getpostid() << " " << temp.getuserid() << " " << temp.getnoOflikes() << " " << temp.getnoOfComments() << " " << temp.getPost() << "\n";
+            Post tempPost = postsLL[i];
+            fout << tempPost.getpostid() << " " << tempPost.getuserid() << " " << tempPost.getnoOflikes() << " " << tempPost.getnoOfComments() << " " << tempPost.getPost() << "\n";
             i++;
         }
     }
@@ -501,10 +502,6 @@ void writeToFile(string filename, int postid, int userid, string post, int likes
         fout << postid << " " << userid << " " << likes << " " << comments << " " << post << "\n";
     }
 }
-#include <iostream>
-#include <conio.h> // For _getch()
-
-using namespace std;
 
 string getHiddenPassword()
 {
@@ -563,7 +560,8 @@ bool requestAlreadySent(int sender, int receiver, DoublyLinkedList<Pair> &reques
     int s = requests.size();
     for (int i = 0; i < s; i++)
     {
-        if (sender == requests[i].getP1() && receiver == requests[i].getP2())
+        Pair temp = requests[i];
+        if (sender == temp.getP1() && receiver == temp.getP2())
             return true;
     }
     return false;
@@ -573,7 +571,8 @@ bool requestAlreadyReceived(int sender, int receiver, DoublyLinkedList<Pair> &re
     int s = requests.size();
     for (int i = 0; i < s; i++)
     {
-        if (sender == requests[i].getP2() && receiver == requests[i].getP1())
+        Pair temp = requests[i];
+        if (sender == temp.getP2() && receiver == temp.getP1())
             return true;
     }
     return false;
@@ -628,7 +627,7 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
         ;
     cout << "Enter username: ";
     cin >> username;
-    validate("Useername", username);
+    validate("Username", username);
     while (!isAlreadyExist("Username", data, emailAVL, username, 0))
         ;
     cout << "Enter password: ";
@@ -706,7 +705,8 @@ bool isAlreadyLiked(int p1, int p2, DoublyLinkedList<Pair> &likePairs)
     int s = likePairs.size();
     for (int i = 0; i < s; i++)
     {
-        if (likePairs[i].getP1() == p1 && likePairs[i].getP2() == p2)
+        Pair temp = likePairs[i];
+        if (temp.getP1() == p1 && temp.getP2() == p2)
             return true;
     }
     return false;

@@ -35,15 +35,17 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
         {
             bool check = false;
             int i = 0;
-            while (i < postSize)
+            int pSize = postsLL.size();
+            while (i < pSize)
             {
                 check = true;
                 system("CLS");
-                displayPost(currentUser.getUsername(), postsLL[i].getPost(), postsLL[i].getnoOflikes(), postsLL[i].getnoOfComments());
+                Post tempPost = postsLL[i];
+                displayPost(currentUser.getUsername(), tempPost.getPost(), tempPost.getnoOflikes(), tempPost.getnoOfComments());
                 cout << "Press 'L' to like the post\n";
                 cout << "Press 'C' to comment on the post\n";
                 cout << "Press 'N' to go to the next post\n";
-                if (currentUser.getID() != postsLL[i].getuserid())
+                if (currentUser.getID() != tempPost.getuserid())
                     cout << "Press 'F' to send friend request to author\n";
                 if (i > 0)
                     cout << "Press 'B' to go back to previous post\n";
@@ -51,11 +53,11 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 char ch = _getch();
                 if (ch == 'L' || ch == 'l')
                 {
-                    if (!isAlreadyLiked(postsLL[i].getpostid(), currentUser.getID(), likePairs))
+                    if (!isAlreadyLiked(tempPost.getpostid(), currentUser.getID(), likePairs))
                     {
-                        int t = postsLL[i].getnoOflikes() + 1;
+                        int t = tempPost.getnoOflikes() + 1;
                         postsLL[i].setnoOflikes(t);
-                        likePairs.insertAtTail(Pair(postsLL[i].getpostid(), currentUser.getID()));
+                        likePairs.insertAtTail(Pair(tempPost.getpostid(), currentUser.getID()));
                         updateLikePairs("Assets/likePairs.txt", likePairs);
                         updatePosts("Assets/posts.txt", postsLL);
                     }
@@ -72,36 +74,36 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     if (cin.peek() == '\n')
                         cin.ignore();
                     getline(cin, comment);
-                    comments.insertAtTail(Comment(comments.size() + 1, postsLL[i].getpostid(), currentUser.getID(), comment));
-                    writeToCommentsFile("Assets/comments.txt", comments.size() + 1, postsLL[i].getpostid(), currentUser.getID(), comment);
-                    postsLL[i].setnoOfComments(postsLL[i].getnoOfComments() + 1);
+                    comments.insertAtTail(Comment(comments.size() + 1, tempPost.getpostid(), currentUser.getID(), comment));
+                    writeToCommentsFile("Assets/comments.txt", comments.size() + 1, tempPost.getpostid(), currentUser.getID(), comment);
+                    postsLL[i].setnoOfComments(tempPost.getnoOfComments() + 1);
                     cout << "Comment Published successfully\n";
                     system("pause");
                 }
                 else if (ch == 'F' || ch == 'f')
                 {
-                    if (currentUser.getID() != postsLL[i].getuserid())
+                    if (currentUser.getID() != tempPost.getuserid())
                     {
                         readFromRequestFile("Assets/requests.txt", requestPairs);
-                        if (requestAlreadySent(currentUser.getID(), postsLL[i].getuserid(), requestPairs))
+                        if (requestAlreadySent(currentUser.getID(), tempPost.getuserid(), requestPairs))
                         {
                             cout << "📨 Friend request already sent — waiting for a response.\n";
                             system("pause");
                         }
-                        else if (requestAlreadyReceived(currentUser.getID(), postsLL[i].getuserid(), requestPairs))
+                        else if (requestAlreadyReceived(currentUser.getID(), tempPost.getuserid(), requestPairs))
                         {
                             cout << "🤝 You've already received a friend request from this user. Consider accepting it instead.😃\n";
                             system("pause");
                         }
-                        else if (currentUser.getID() == postsLL[i].getuserid())
+                        else if (currentUser.getID() == tempPost.getuserid())
                         {
                             cout << "Error! Can't send friend request to yourself 😁\n";
                             system("pause");
                         }
                         else
                         {
-                            friends.insertAtTail(Pair(currentUser.getID(), postsLL[i].getuserid()));
-                            writeToRequestFile("Assets/requests.txt", currentUser.getID(), postsLL[i].getuserid());
+                            friends.insertAtTail(Pair(currentUser.getID(), tempPost.getuserid()));
+                            writeToRequestFile("Assets/requests.txt", currentUser.getID(), tempPost.getuserid());
                             cout << "✅ Friend request sent successfully!\n";
                             system("pause");
                         }
@@ -113,20 +115,20 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     i--;
                 else if (ch == '0')
                     break;
-            }
-            if (i == postSize)
-            {
-                if (check)
-                    cout << "🕵️ Nothing left... you're all caught up! ✅\n\n";
-                else
-                    cout << "📭 No posts available for now. Please check back later! 😊\n";
-                system("pause");
+                if (i == postSize)
+                {
+                    if (check)
+                        cout << "🕵️ Nothing left... you're all caught up! ✅\n\n";
+                    else
+                        cout << "📭 No posts available for now. Please check back later! 😊\n";
+                    system("pause");
+                }
             }
         }
         else if (choice == 'S' || choice == 's')
         {
             string str;
-            cout << "🔎 Enter name to search: ";
+            cout << "\n\n🔎 Enter name to search: ";
             cin.ignore();
             getline(cin, str);
             cout << "\n\n";
@@ -135,7 +137,11 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             {
                 cout << "\n\nPress 'F' to send friend request to anyone from the list\n";
                 cout << "Press '0' to go back\n";
-                char ch = _getch();
+                char ch;
+                do
+                {
+                    ch = _getch();
+                } while (ch != 'F' && ch != 'f' && ch != '0');
                 if (ch == 'F' || ch == 'f')
                 {
                     int uid{};
@@ -190,10 +196,11 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             for (i; i < requestPairs.size(); i++)
             {
                 system("CLS");
-                if (requestPairs[i].getP2() == currentUser.getID())
+                Pair tempReq = requestPairs[i];
+                if (tempReq.getP2() == currentUser.getID())
                 {
                     check = true;
-                    User sender = idTree.searchUserByID(requestPairs[i].getP1());
+                    User sender = idTree.searchUserByID(tempReq.getP1());
                     cout << "📨 Friend request received from: " << sender.getFullname() << endl;
                     cout << "✅ Press 'A' to accept the request\n";
                     cout << "❌ Press 'R' to reject it\n";
@@ -236,16 +243,17 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             int i = 0;
             for (i; i < friends.size(); i++)
             {
-                if (friends[i].getP2() == currentUser.getID())
+                Pair tempFriend = friends[i];
+                if (tempFriend.getP2() == currentUser.getID())
                 {
                     check = true;
-                    User sender = idTree.searchUserByID(friends[i].getP1());
+                    User sender = idTree.searchUserByID(tempFriend.getP1());
                     cout << "Friend ID: " << sender.getID() << "\nName: " << sender.getFullname() << endl;
                 }
                 if (currentUser.getID() == friends[i].getP1())
                 {
                     check = true;
-                    User sender = idTree.searchUserByID(friends[i].getP2());
+                    User sender = idTree.searchUserByID(tempFriend.getP2());
                     cout << "Friend ID: " << sender.getID() << "\nName: " << sender.getFullname() << endl;
                 }
             }
@@ -307,10 +315,17 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             string curPass{};
             cout << "Enter your current Password: ";
             curPass = getHiddenPassword();
+            convertToCipher(curPass, 0x54);
             if (curPass == currentUser.getPassword())
             {
                 cout << "Enter new password: ";
                 string newPass = getHiddenPassword();
+                while (!checkPass(newPass))
+                {
+                    cout << "Password can't be less than 8 characters!\n";
+                    cout << "Enter new password: ";
+                    newPass = getHiddenPassword();
+                }
                 cout << "Confirm new password: ";
                 curPass = getHiddenPassword();
                 if (curPass == newPass)
@@ -343,6 +358,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             cout << "📝 No. of Posts: " << countPosts("Assets/posts.txt", currentUser.getID()) << endl;
 
             cout << "Press 'V' to view your posts and Comments\n";
+            cout << "Press 'B' to go back\n";
             char ch{};
             do
             {
@@ -351,8 +367,10 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             if (ch == 'V' || ch == 'v')
             {
                 displayPostAndComments(comments, postsLL, currentUser.getID(), currentUser.getUsername());
+                system("pause");
             }
-            system("pause");
+            else if (ch == 'B' || ch == 'b')
+                continue;
         }
     } while (choice != '0');
 }
