@@ -7,82 +7,11 @@
 #include "Stack.h"
 #include "comment.h"
 #include "chats.h"
+#include "postUI.h"
+#include "validation.h"
 
 using namespace std;
 
-bool isValidChar(char ch)
-{
-    return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9'));
-}
-bool isEmailValid(string email)
-{
-    int countAt{};
-    int atTheRateOf = -1, period = -1;
-    if (!isValidChar(email[0]))
-    {
-        cout << "Error! 1st character of email can only be (a-z) or (0-9)" << endl;
-        return false;
-    }
-    int i{};
-    for (i = 0; email[i] != '\0'; i++)
-    {
-        if (email[i] == '.' && email[i + 1] == '.')
-        {
-            cout << "Error! Email can't have consecutive periods (.)" << endl;
-            return false;
-        }
-        if (email[i] == '.')
-        {
-            period = i;
-        }
-        if (email[i] == '@')
-        {
-            countAt++;
-            atTheRateOf = i;
-        }
-        if ((email[i] == '@') && !(isValidChar(email[i - 1])) && !(isValidChar(email[i + 1])))
-        {
-            cout << "Invalid Format! Please try (example@gmail.com)" << endl;
-            return false;
-        }
-    }
-    if (countAt != 1)
-    {
-        cout << "Error! Email address must have only one '@'" << endl;
-        return false;
-    }
-    if ((atTheRateOf > period) || (period == -1 || atTheRateOf == -1))
-    {
-        cout << "Invalid Format! Please try (example@gmail.com)" << endl;
-        return false;
-    }
-    if (period >= i - 1)
-    {
-        cout << "Last character of email can't be period (.)" << endl;
-        return false;
-    }
-    return true;
-}
-
-bool containsSpace(string arr)
-{
-    for (int i = 0; arr[i] != '\0'; i++)
-    {
-        if (arr[i] == ' ')
-        {
-            return false;
-        }
-    }
-    return true;
-}
-bool checkPass(string pass)
-{
-    if (pass.length() < 8)
-    {
-        return false;
-    }
-    return true;
-}
 void writeToFile(string filename, int id, string arr, string arr2, string arr3, string arr4)
 {
     fstream fout(filename, ios::app);
@@ -614,8 +543,12 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
     cout << setw(84) << "==================== Signup Page ====================\n\n\n";
     string email{}, password{}, username{}, fullname{};
     int id{};
-    cout << "Enter email: ";
+    cout << "Enter email[Enter 0000 to quit]: ";
     cin >> email;
+    if (email == "0000")
+    {
+        return User();
+    }
     while (!isEmailValid(email))
     {
         cout << "Email Invalid!\n";
@@ -632,19 +565,19 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
         ;
     cout << "Enter password: ";
     password = getHiddenPassword();
-    convertToCipher(password, 0x54);
+    convertToCipher(password, 'K');
     while (!checkPass(password))
     {
         cout << "Password can't be less than 8 characters!\n";
         cout << "Enter password: ";
         password = getHiddenPassword();
-        convertToCipher(password, 0x54);
+        convertToCipher(password, 'K');
     }
     cout << "Enter Full Name: ";
     if (cin.peek() == '\n')
         cin.ignore();
     getline(cin, fullname);
-    int s = data.getMaxID();
+    int s = idTree.getMaxID();
     convertToLower(username);
     convertToLower(email);
     data.insertIntoUserAVL(User(s + 1, email, username, password, fullname));
@@ -655,29 +588,6 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
     return User(s + 1, email, username, password, fullname);
 }
 
-void displayPost(string username, string content, int likes, int comments)
-{
-    const int conwidth = 50;
-    const int bWidth = conwidth + 7;
-    const int fullWIdth = 100;
-    const int padding = (fullWIdth - bWidth) / 2;
-    int contLen = content.length();
-    int lines = (contLen + conwidth - 1) / conwidth;
-    string pad(padding, ' ');
-    cout << pad << string(bWidth, '=') << '\n';
-    string user = "👤 @" + username + "    ";
-    cout << pad << "| " << user << string(conwidth - user.length() + 4, ' ') << "   |\n";
-    for (int i = 0; i < lines; ++i)
-    {
-        string line = content.substr(i * conwidth, conwidth);
-        cout << pad << "|   " << line << string(conwidth - line.length(), ' ') << "   |\n";
-    }
-    cout << pad << "|   " << string(conwidth, ' ') << "   |\n";
-    string lastLine = "💕 " + to_string(likes) + "   💬 " + to_string(comments);
-    cout << pad << "|   " << lastLine << string(conwidth - lastLine.length() + 4, ' ') << "   |\n";
-
-    cout << pad << string(bWidth, '=') << '\n';
-}
 void displayPostAndComments(DoublyLinkedList<Comment> &comments, DoublyLinkedList<Post> &postsLL, int uid, string username)
 {
     int s = postsLL.size();

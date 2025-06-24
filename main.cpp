@@ -37,17 +37,19 @@ int main()
         {
             system("CLS");
             cout << setw(84) << "==================== Login Page ====================\n\n\n";
+            cout << "[Enter 0 in both email and password to quit]\n";
             if (!check)
-                cout << "Incorrect password. Please try again 🙁 [Enter 0 in email and password to quit]\n";
+                cout
+                    << "Incorrect password. Please try again 🙁\n";
             cout << "Enter your email: ";
             cin >> email;
             cout << "Enter your password: ";
             password = getHiddenPassword();
-            convertToCipher(password, 0x54);
             if (email == "0" && password == "0")
             {
                 break;
             }
+            convertToCipher(password, 'K');
             currentUser = login(email, password, emailTree);
             if (currentUser.getID() == 0)
                 check = false;
@@ -60,6 +62,8 @@ int main()
     {
         system("CLS");
         User currentUser = signUp(data, emailTree, idTree);
+        if (currentUser.getID() == 0)
+            return 0;
         mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, idTree, friendPairs, chats, emailTree);
     }
     else if (ch == '0')

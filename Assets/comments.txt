@@ -1,3 +1,0 @@
-2 1 1 test
-3 1 1 ls && cd "c:\Users\Abdullah\Documents\Uni Docs\4th Semester\DSA LAB\DSA-Final-Project\Code\" && g++ main.cpp -o main && "c:\Users\Abdullah\Documents\Uni Docs\4th Semester\DSA LAB\DSA-Final-Project\Code\"main
-4 1 1 test2

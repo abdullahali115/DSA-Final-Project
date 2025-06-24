@@ -1,4 +1,4 @@
-#include "Login+SignUpFunctions.h"
+#include "MajorFunctions.h"
 
 void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int &postSize, DoublyLinkedList<Pair> &likePairs, DoublyLinkedList<Comment> &comments, DoublyLinkedList<Pair> &requestPairs, AVL &idTree, DoublyLinkedList<Pair> &friends, DoublyLinkedList<Chat> &chats, AVL &emailTree)
 {
@@ -15,6 +15,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
         cout << "📨 Press 'R' to view the friend requests received\n";
         cout << "🔐 Press 'U' to update your password\n";
         cout << "👤 Press 'P' to view your profile\n";
+        cout << "💔 Press 'D' if you wish to delete your account\n";
         cout << "🚪 Press '0' to exit\n";
         choice = _getch();
 
@@ -115,6 +116,17 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     i--;
                 else if (ch == '0')
                     break;
+                if (i == postSize)
+                {
+                    if (check)
+                        cout << "🕵️ Nothing left... you're all caught up! ✅\n\n";
+                    else
+                        cout << "📭 No posts available for now. Please check back later! 😊\n";
+                    system("pause");
+                }
+            }
+            if (!check)
+            {
                 if (i == postSize)
                 {
                     if (check)
@@ -315,7 +327,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             string curPass{};
             cout << "Enter your current Password: ";
             curPass = getHiddenPassword();
-            convertToCipher(curPass, 0x54);
+            convertToCipher(curPass, 'K');
             if (curPass == currentUser.getPassword())
             {
                 cout << "Enter new password: ";
@@ -330,7 +342,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 curPass = getHiddenPassword();
                 if (curPass == newPass)
                 {
-                    convertToCipher(curPass, 0x54);
+                    convertToCipher(newPass, 'K');
                     idTree.deleteUser(currentUser.getID());
                     currentUser.setPassword(newPass);
                     idTree.insertIntoIDAVL(currentUser);
@@ -371,6 +383,22 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             }
             else if (ch == 'B' || ch == 'b')
                 continue;
+        }
+        else if (choice == 'D' || choice == 'd')
+        {
+            string tmp{};
+            cout << "\nAre you sure to delete your account?\nIf yes then type 'yes': ";
+            cin >> tmp;
+            convertToLower(tmp);
+            if (tmp == "yes")
+            {
+                idTree.deleteUser(currentUser.getID());
+                idTree.updateFile("Assets/loginDetails.txt");
+                system("CLS");
+                cout << "👋 Your account has been deleted. Farewell, and take care.\n";
+                system("pause");
+                break;
+            }
         }
     } while (choice != '0');
 }
