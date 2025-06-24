@@ -100,6 +100,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                         }
                         else
                         {
+                            friends.insertAtTail(Pair(currentUser.getID(), postsLL[i].getuserid()));
                             writeToRequestFile("Assets/requests.txt", currentUser.getID(), postsLL[i].getuserid());
                             cout << "✅ Friend request sent successfully!\n";
                             system("pause");
@@ -201,6 +202,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     if (ch == 'A' || ch == 'a')
                     {
                         writeToRequestFile("Assets/friends.txt", sender.getID(), currentUser.getID());
+                        friends.insertAtTail(Pair(sender.getID(), currentUser.getID()));
                         requestPairs.deleteAtIndex(i);
                         updateLikePairs("Assets/requests.txt", requestPairs);
                         cout << "🤝 You are now friends with " << sender.getFullname() << endl;
@@ -238,7 +240,13 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 {
                     check = true;
                     User sender = idTree.searchUserByID(friends[i].getP1());
-                    cout << "Friend ID: " << sender.getID() << " Name: " << sender.getFullname() << endl;
+                    cout << "Friend ID: " << sender.getID() << "\nName: " << sender.getFullname() << endl;
+                }
+                if (currentUser.getID() == friends[i].getP1())
+                {
+                    check = true;
+                    User sender = idTree.searchUserByID(friends[i].getP2());
+                    cout << "Friend ID: " << sender.getID() << "\nName: " << sender.getFullname() << endl;
                 }
             }
             if (check)
@@ -264,7 +272,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                         User friendInbox = idTree.searchUserByID(uid);
                         showChats(currentUser, friendInbox, chats);
 
-                        cout << "Enter 'S' to send a message\n";
+                        cout << "\n\n\nEnter 'S' to send a message\n";
                         cout << "Enter 'R' to reload chat\n";
                         cout << "Enter 'B' to go back to main menu\n";
                         ch = _getch();
@@ -273,7 +281,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                             system("CLS");
                             showChats(currentUser, friendInbox, chats);
                             string m;
-                            cout << "Enter the message you want to send: ";
+                            cout << "\n\n\nEnter the message you want to send: ";
                             if (cin.peek() == '\n')
                                 cin.ignore();
                             getline(cin, m);
@@ -307,6 +315,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 curPass = getHiddenPassword();
                 if (curPass == newPass)
                 {
+                    convertToCipher(curPass, 0x54);
                     idTree.deleteUser(currentUser.getID());
                     currentUser.setPassword(newPass);
                     idTree.insertIntoIDAVL(currentUser);

@@ -128,6 +128,11 @@ void convertToLower(string &temp)
     for (int i = 0; temp[i] != '\0'; i++)
         temp[i] = tolower(temp[i]);
 }
+void convertToCipher(string &temp, char key)
+{
+    for (int i = 0; temp[i] != '\0'; i++)
+        temp[i] ^= key;
+}
 
 void validate(string toBeChanged, string &arr)
 {
@@ -628,11 +633,13 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
         ;
     cout << "Enter password: ";
     password = getHiddenPassword();
+    convertToCipher(password, 0x54);
     while (!checkPass(password))
     {
         cout << "Password can't be less than 8 characters!\n";
         cout << "Enter password: ";
         password = getHiddenPassword();
+        convertToCipher(password, 0x54);
     }
     cout << "Enter Full Name: ";
     if (cin.peek() == '\n')
@@ -675,7 +682,7 @@ void displayPost(string username, string content, int likes, int comments)
 void displayPostAndComments(DoublyLinkedList<Comment> &comments, DoublyLinkedList<Post> &postsLL, int uid, string username)
 {
     int s = postsLL.size();
-    int index = 0;
+    int index = 1;
     for (int i = 0; i < s; i++)
     {
         Post temp = postsLL[i];
@@ -688,7 +695,7 @@ void displayPostAndComments(DoublyLinkedList<Comment> &comments, DoublyLinkedLis
                 Comment temp2 = comments[j];
                 if (temp.getpostid() == temp2.getPostID())
                 {
-                    cout << index++ << temp2.getComment() << "\n\n";
+                    cout << index++ << ". " << temp2.getComment() << "\n\n";
                 }
             }
         }

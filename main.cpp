@@ -43,6 +43,7 @@ int main()
             cin >> email;
             cout << "Enter your password: ";
             password = getHiddenPassword();
+            convertToCipher(password, 0x54);
             if (email == "0" && password == "0")
             {
                 break;
