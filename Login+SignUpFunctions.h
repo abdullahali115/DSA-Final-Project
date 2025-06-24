@@ -97,7 +97,32 @@ void writeToFile(string filename, int id, string arr, string arr2, string arr3, 
         fout << id << " " << arr << " " << arr2 << " " << arr3 << " " << arr4 << "\n";
     }
 }
-
+int countFriends(string filename, int id)
+{
+    fstream fin(filename, ios::in);
+    if (!fin)
+    {
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
+    int i = 0;
+    int count = 0;
+    int f1{};
+    int f2{};
+    if (fin.is_open())
+    {
+        while (fin >> f1)
+        {
+            fin >> f2;
+            if (id == f1 || id == f2)
+                count++;
+            i++;
+        }
+    }
+    fin.close();
+    return count;
+}
 void convertToLower(string &temp)
 {
     for (int i = 0; temp[i] != '\0'; i++)
@@ -384,7 +409,7 @@ int readFromFile(string filename, AVL &data, AVL &emailAVL, AVL &idTree)
             getline(fin, fullname);
             data.insertIntoUserAVL(User(id, email, username, password, fullname));
             emailAVL.insertIntoEmailAVL(User(id, email, username, password, fullname));
-            idTree.insertIntoEmailAVL(User(id, email, username, password, fullname));
+            idTree.insertIntoIDAVL(User(id, email, username, password, fullname));
             i++;
         }
     }
@@ -413,7 +438,8 @@ int readFromFile(string filename, DoublyLinkedList<Post> &postsLL)
             fin >> userid;
             fin >> likes;
             fin >> comments;
-            fin.ignore();
+            if (fin.peek() == '\n')
+                fin.ignore();
             getline(fin, post);
             postsLL.insertAtTail(Post(postid, userid, post, likes, comments));
             i++;
@@ -421,6 +447,40 @@ int readFromFile(string filename, DoublyLinkedList<Post> &postsLL)
     }
     fin.close();
     return i;
+}
+int countPosts(string filename, int uid)
+{
+    fstream fin(filename, ios::in);
+    if (!fin)
+    {
+        ofstream file(filename);
+        file.close();
+        fin.open(filename, ios::in);
+    }
+    int i = 0;
+    int count = 0;
+    string post{};
+    int userid{};
+    int postid{};
+    int likes{};
+    int comments{};
+    if (fin.is_open())
+    {
+        while (fin >> postid)
+        {
+            fin >> userid;
+            fin >> likes;
+            fin >> comments;
+            if (fin.peek() == '\n')
+                fin.ignore();
+            getline(fin, post);
+            if (userid == uid)
+                count++;
+            i++;
+        }
+    }
+    fin.close();
+    return count;
 }
 void writeToFile(string filename, int postid, int userid, string post, int likes, int comments)
 {
@@ -583,7 +643,7 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
     convertToLower(email);
     data.insertIntoUserAVL(User(s + 1, email, username, password, fullname));
     emailAVL.insertIntoEmailAVL(User(s + 1, email, username, password, fullname));
-    idTree.insertIntoEmailAVL(User(s + 1, email, username, password, fullname));
+    idTree.insertIntoIDAVL(User(s + 1, email, username, password, fullname));
     writeToFile("Assets/loginDetails.txt", s + 1, email, username, password, fullname);
 
     // greting

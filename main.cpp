@@ -20,13 +20,13 @@ int main()
     DoublyLinkedList<Chat> chats;
 
     int loginSize = readFromFile("Assets/loginDetails.txt", data, emailTree, idTree);
-    char ch = welcomePage();
     int postsSize = readFromFile("Assets/posts.txt", postsLL);
     int pairSize = readFromLikePairFiles("Assets/likePairs.txt", likePairs);
     int commentSize = readFromCommentFiles("Assets/comments.txt", comments);
     int requests = readFromRequestFile("Assets/requests.txt", requestPairs);
     int friends = readFromFriendsFile("Assets/friends.txt", friendPairs);
     int noOfChats = loadMessages("Assets/chats.txt", chats);
+    char ch = welcomePage();
     string email{}, password{}, username{}, fullname{}, id{};
 
     if (ch == 'l' || ch == 'L')
@@ -52,13 +52,13 @@ int main()
         } while (currentUser.getID() == 0);
 
         if (currentUser.getID() != 0)
-            mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, idTree, friendPairs, chats);
+            mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, idTree, friendPairs, chats, emailTree);
     }
     else if (ch == 'S' || ch == 's')
     {
         system("CLS");
         User currentUser = signUp(data, emailTree, idTree);
-        mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, idTree, friendPairs, chats);
+        mainMenu(currentUser, data, postsLL, postsSize, likePairs, comments, requestPairs, idTree, friendPairs, chats, emailTree);
     }
     else if (ch == '0')
         return 0;

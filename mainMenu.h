@@ -1,19 +1,20 @@
 #include "Login+SignUpFunctions.h"
 
-void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int postSize, DoublyLinkedList<Pair> &likePairs, DoublyLinkedList<Comment> &comments, DoublyLinkedList<Pair> &requestPairs, AVL &idTree, DoublyLinkedList<Pair> &friends, DoublyLinkedList<Chat> &chats)
+void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int &postSize, DoublyLinkedList<Pair> &likePairs, DoublyLinkedList<Comment> &comments, DoublyLinkedList<Pair> &requestPairs, AVL &idTree, DoublyLinkedList<Pair> &friends, DoublyLinkedList<Chat> &chats, AVL &emailTree)
 {
     char choice{};
     do
     {
         system("chcp 65001");
         system("CLS");
-        cout << setw(60) << "================ Welcome " << currentUser.getFullname() << " ==================\n\n\n";
+        cout << setw(71 - currentUser.getFullname().length()) << "================ Welcome " << currentUser.getFullname() << " ==================\n\n\n";
         cout << "📜 Press 'F' to view the feed\n";
         cout << "📥 Press 'I' to go to inbox\n";
         cout << "🔍 Press 'S' to search any user\n";
         cout << "✍️ Press 'C' to create a new post\n";
         cout << "📨 Press 'R' to view the friend requests received\n";
-        cout << "🔐 Press 'P' to update your password\n";
+        cout << "🔐 Press 'U' to update your password\n";
+        cout << "👤 Press 'P' to view your profile\n";
         cout << "🚪 Press '0' to exit\n";
         choice = _getch();
 
@@ -71,7 +72,9 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     if (cin.peek() == '\n')
                         cin.ignore();
                     getline(cin, comment);
+                    comments.insertAtTail(Comment(comments.size() + 1, postsLL[i].getpostid(), currentUser.getID(), comment));
                     writeToCommentsFile("Assets/comments.txt", comments.size() + 1, postsLL[i].getpostid(), currentUser.getID(), comment);
+                    postsLL[i].setnoOfComments(postsLL[i].getnoOfComments() + 1);
                     cout << "Comment Published successfully\n";
                     system("pause");
                 }
@@ -130,7 +133,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             if (check)
             {
                 cout << "\n\nPress 'F' to send friend request to anyone from the list\n";
-                cout << "Press 'B' to go back\n";
+                cout << "Press '0' to go back\n";
                 char ch = _getch();
                 if (ch == 'F' || ch == 'f')
                 {
@@ -200,7 +203,6 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                         writeToRequestFile("Assets/friends.txt", sender.getID(), currentUser.getID());
                         requestPairs.deleteAtIndex(i);
                         updateLikePairs("Assets/requests.txt", requestPairs);
-                        i--;
                         cout << "🤝 You are now friends with " << sender.getFullname() << endl;
                         system("pause");
                     }
@@ -208,7 +210,6 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     {
                         requestPairs.deleteAtIndex(i);
                         updateLikePairs("Assets/requests.txt", requestPairs);
-                        i--;
                         cout << "❌ Friend request from " << sender.getFullname() << " has been rejected successfully.\n";
                         system("pause");
                     }
@@ -293,7 +294,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 system("pause");
             }
         }
-        else if (choice == 'P' || choice == 'p')
+        else if (choice == 'U' || choice == 'u')
         {
             string curPass{};
             cout << "Enter your current Password: ";
@@ -306,10 +307,10 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 curPass = getHiddenPassword();
                 if (curPass == newPass)
                 {
-                    data.deleteUser(currentUser.getUsername());
+                    idTree.deleteUser(currentUser.getID());
                     currentUser.setPassword(newPass);
-                    data.insertIntoUserAVL(currentUser);
-                    data.updateFile("Assets/loginDetails.txt");
+                    idTree.insertIntoIDAVL(currentUser);
+                    idTree.updateFile("Assets/loginDetails.txt");
                 }
                 else
                 {
@@ -322,6 +323,16 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 cout << "Invalid Password! Unable to change\n";
                 system("pause");
             }
+        }
+        else if (choice == 'P' || choice == 'p')
+        {
+            system("CLS");
+            cout << setw(60 - currentUser.getFullname().length()) << "================ Welcome " << currentUser.getFullname() << " to your profile ==================\n\n\n";
+            cout << "👤 Username: @" << currentUser.getUsername() << "\n\n";
+            cout << "📧 Email: " << currentUser.getEmail() << "\n\n";
+            cout << "👥 Friends: " << countFriends("Assets/friends.txt", currentUser.getID()) << "\n\n";
+            cout << "📝 Posts: " << countPosts("Assets/posts.txt", currentUser.getID()) << endl;
+            system("pause");
         }
     } while (choice != '0');
 }

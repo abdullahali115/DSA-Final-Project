@@ -159,7 +159,9 @@ class AVL
         if (temp == nullptr)
             return User();
         if (temp->data.getID() == key)
+        {
             return temp->data;
+        }
         if (temp->data.getID() < key)
             return searchByID(temp->right, key);
         return searchByID(temp->left, key);
@@ -213,21 +215,21 @@ class AVL
     {
         if (temp == nullptr)
             return;
-        inOrderHelper(temp->left);
+        updateFileHelper(file, temp->left);
         file << temp->data.getID() << " ";
         file << temp->data.getEmail() << " ";
         file << temp->data.getUsername() << " ";
         file << temp->data.getPassword() << " ";
         file << temp->data.getFullname() << "\n";
-        inOrderHelper(temp->right);
+        updateFileHelper(file, temp->right);
     }
-    Node *deleteFromBST(Node *temp, string key)
+    Node *deleteFromBST(Node *temp, int key)
     {
         if (temp == nullptr)
             return nullptr;
-        if (temp->data.getUsername() > key)
+        if (temp->data.getID() > key)
             temp->left = deleteFromBST(temp->left, key);
-        else if (temp->data.getUsername() < key)
+        else if (temp->data.getID() < key)
             temp->right = deleteFromBST(temp->right, key);
         else
         {
@@ -253,7 +255,7 @@ class AVL
                 temp->data.setUsername(inOrder->data.getUsername());
                 temp->data.setPassword(inOrder->data.getPassword());
                 temp->data.setFullname(inOrder->data.getFullname());
-                temp->right = deleteFromBST(temp->right, inOrder->data.getUsername());
+                temp->right = deleteFromBST(temp->right, inOrder->data.getID());
             }
         }
         return temp;
@@ -315,8 +317,8 @@ public:
         }
         return;
     }
-    void deleteUser(string username)
+    void deleteUser(int id)
     {
-        root = deleteFromBST(root, username);
+        root = deleteFromBST(root, id);
     }
 };
