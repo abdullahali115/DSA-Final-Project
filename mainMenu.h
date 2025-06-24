@@ -347,6 +347,8 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     currentUser.setPassword(newPass);
                     idTree.insertIntoIDAVL(currentUser);
                     idTree.updateFile("Assets/loginDetails.txt");
+                    cout << "Password changed successfully\n";
+                    system("pause");
                 }
                 else
                 {
@@ -378,6 +380,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             } while (ch != 'v' && ch != 'V' && ch != 'B' && ch != 'b');
             if (ch == 'V' || ch == 'v')
             {
+                cout << "Comments: ";
                 displayPostAndComments(comments, postsLL, currentUser.getID(), currentUser.getUsername());
                 system("pause");
             }
@@ -387,10 +390,10 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
         else if (choice == 'D' || choice == 'd')
         {
             string tmp{};
-            cout << "\nAre you sure to delete your account?\nIf yes then type 'yes': ";
+            cout << "\nAre you sure to delete your account?\nIf yes then type 'delete': ";
             cin >> tmp;
             convertToLower(tmp);
-            if (tmp == "yes")
+            if (tmp == "delete")
             {
                 idTree.deleteUser(currentUser.getID());
                 idTree.updateFile("Assets/loginDetails.txt");
