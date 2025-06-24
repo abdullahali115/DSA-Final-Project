@@ -42,7 +42,8 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                 check = true;
                 system("CLS");
                 Post tempPost = postsLL[i];
-                displayPost(currentUser.getUsername(), tempPost.getPost(), tempPost.getnoOflikes(), tempPost.getnoOfComments());
+                User author = idTree.searchUserByID(tempPost.getuserid());
+                displayPost(author.getUsername(), tempPost.getPost(), tempPost.getnoOflikes(), tempPost.getnoOfComments());
                 cout << "Press 'L' to like the post\n";
                 cout << "Press 'C' to comment on the post\n";
                 cout << "Press 'N' to go to the next post\n";
@@ -78,6 +79,7 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
                     comments.insertAtTail(Comment(comments.size() + 1, tempPost.getpostid(), currentUser.getID(), comment));
                     writeToCommentsFile("Assets/comments.txt", comments.size() + 1, tempPost.getpostid(), currentUser.getID(), comment);
                     postsLL[i].setnoOfComments(tempPost.getnoOfComments() + 1);
+                    updatePosts("Assets/posts.txt", postsLL);
                     cout << "Comment Published successfully\n";
                     system("pause");
                 }
@@ -380,7 +382,6 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
             } while (ch != 'v' && ch != 'V' && ch != 'B' && ch != 'b');
             if (ch == 'V' || ch == 'v')
             {
-                cout << "Comments: ";
                 displayPostAndComments(comments, postsLL, currentUser.getID(), currentUser.getUsername());
                 system("pause");
             }

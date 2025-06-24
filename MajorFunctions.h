@@ -373,8 +373,7 @@ int readFromFile(string filename, DoublyLinkedList<Post> &postsLL)
             fin >> userid;
             fin >> likes;
             fin >> comments;
-            if (fin.peek() == '\n')
-                fin.ignore();
+            fin.ignore();
             getline(fin, post);
             postsLL.insertAtTail(Post(postid, userid, post, likes, comments));
             i++;
@@ -591,10 +590,10 @@ User signUp(AVL &data, AVL &emailAVL, AVL &idTree)
 void displayPostAndComments(DoublyLinkedList<Comment> &comments, DoublyLinkedList<Post> &postsLL, int uid, string username)
 {
     int s = postsLL.size();
-    int index = 1;
     for (int i = 0; i < s; i++)
     {
         Post temp = postsLL[i];
+        int index = 1;
         int c = comments.size();
         if (temp.getuserid() == uid)
         {
@@ -604,9 +603,10 @@ void displayPostAndComments(DoublyLinkedList<Comment> &comments, DoublyLinkedLis
                 Comment temp2 = comments[j];
                 if (temp.getpostid() == temp2.getPostID())
                 {
-                    cout << index++ << ". " << temp2.getComment() << "\n\n";
+                    cout << "Comment " << index++ << ". " << temp2.getComment() << "\n";
                 }
             }
+            cout << endl;
         }
     }
 }

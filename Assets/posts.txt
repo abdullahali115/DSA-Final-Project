@@ -1,1 +1,10 @@
-1 1 0 0 Code. Eat. Sleep. Debug. Repeat. #DebugAndChill
+1 1 3 2 Code. Eat. Sleep. Debug. Repeat. #DebugAndChill
+2 2 2 1 Everything happens for a reason. Stay strong.
+3 3 1 1 Rainy mornings and a hot cup of chai --- perfect combo.
+4 1 2 2 Debugged something after hours. That moment of relief is unmatched.
+5 5 1 1 Just tried biryani from that new place. Solid 9/10.
+6 4 2 1 Trust the process. The results will follow.
+7 3 1 1 Silence isn't empty. It's full of answers.
+8 2 1 1 Starting a new book tonight. Any recommendations?
+9 7 0 0 Football match this weekend. Can't wait!
+10 1 1 0 Learned something new in design today. Small progress counts.
