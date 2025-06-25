@@ -23,11 +23,14 @@ void mainMenu(User currentUser, AVL &data, DoublyLinkedList<Post> &postsLL, int 
         {
             string post{};
             system("CLS");
+            cout << "[Enter '0000' to go back]\n";
             cout << "What's on your mind today?: ";
             do
             {
                 getline(cin, post);
-            } while (post.size() == 0);
+            } while (post.empty() && post != "0000");
+            if (post == "0000")
+                continue;
 
             postsLL.insertAtTail(Post(postSize + 1, currentUser.getID(), post, 0, 0));
             writeToFile("Assets/posts.txt", postSize + 1, currentUser.getID(), post, 0, 0);
